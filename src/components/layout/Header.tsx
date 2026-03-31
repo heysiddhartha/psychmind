@@ -104,8 +104,8 @@ export default function Header() {
         {/* Logo - Using actual logo file */}
         <Link to="/" className="flex items-center gap-3 group">
           <img
-            src="/logo.png"
-            alt="The 3 Tree Logo"
+            src="#"
+            alt="#"
             className="h-12 w-auto transition-transform duration-300 group-hover:scale-105"
             onError={(e) => {
               // Fallback to tree emoji if image fails
