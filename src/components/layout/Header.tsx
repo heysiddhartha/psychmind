@@ -104,7 +104,7 @@ export default function Header() {
         {/* Logo - Using actual logo file */}
         <Link to="/" className="flex items-center gap-3 group">
           <img
-            src="#"
+            src="/psychmind.png"
             alt="#"
             className="h-12 w-auto transition-transform duration-300 group-hover:scale-105"
             onError={(e) => {
