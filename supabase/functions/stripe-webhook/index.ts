@@ -49,7 +49,7 @@ serve(async (req) => {
                     await supabase
                         .from("bookings")
                         .update({
-                            payment_status: "completed",
+                            payment_status: "paid",
                             payment_id: session.payment_intent as string,
                             status: "confirmed",
                             updated_at: new Date().toISOString(),
@@ -123,12 +123,10 @@ serve(async (req) => {
 
                     if (booking) {
                         const refundAmount = charge.amount_refunded / 100;
-                        const isFullRefund = charge.amount_refunded === charge.amount;
-
                         await supabase
                             .from("bookings")
                             .update({
-                                payment_status: isFullRefund ? "refunded" : "partially_refunded",
+                                payment_status: "refunded",
                                 updated_at: new Date().toISOString(),
                             })
                             .eq("id", booking.id);

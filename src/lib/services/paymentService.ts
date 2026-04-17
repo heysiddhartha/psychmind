@@ -102,7 +102,7 @@ export async function confirmPayment(
         const { error } = await supabase
             .from('bookings')
             .update({
-                payment_status: 'completed',
+                payment_status: 'paid',
                 payment_id: paymentIntentId,
                 status: 'confirmed',
                 updated_at: new Date().toISOString(),
@@ -165,7 +165,7 @@ export async function processRefund(
         await supabase
             .from('bookings')
             .update({
-                payment_status: amount ? 'partially_refunded' : 'refunded',
+                payment_status: 'refunded',
                 updated_at: new Date().toISOString(),
             })
             .eq('id', bookingId);
@@ -202,7 +202,7 @@ export async function getPaymentHistory(userId: string): Promise<{
                 therapist:therapists(user:users(full_name))
             `)
             .eq('client_id', userId)
-            .in('payment_status', ['completed', 'refunded', 'partially_refunded'])
+            .in('payment_status', ['paid', 'refunded'])
             .order('created_at', { ascending: false });
 
         if (error) throw error;

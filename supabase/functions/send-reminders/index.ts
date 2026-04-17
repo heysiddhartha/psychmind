@@ -33,7 +33,7 @@ serve(async (req) => {
             .from("bookings")
             .select(`
                 id, scheduled_at,
-                client:users!bookings_client_id_fkey(email, full_name),
+                client:users!bookings_client_id_fkey(id, email, full_name),
                 therapist:therapists!bookings_therapist_id_fkey(user:users(full_name))
             `)
             .eq("status", "confirmed")
@@ -48,7 +48,7 @@ serve(async (req) => {
             .from("bookings")
             .select(`
                 id, scheduled_at,
-                client:users!bookings_client_id_fkey(email, full_name),
+                client:users!bookings_client_id_fkey(id, email, full_name),
                 therapist:therapists!bookings_therapist_id_fkey(user:users(full_name))
             `)
             .eq("status", "confirmed")

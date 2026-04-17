@@ -19,7 +19,7 @@ interface AuthContextType {
     session: Session | null;
     loading: boolean;
     signInWithEmail: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-    signUpWithEmail: (data: SignUpData) => Promise<{ error: AuthError | Error | null }>;
+    signUpWithEmail: (data: SignUpData) => Promise<{ error: AuthError | Error | null; requiresEmailConfirmation?: boolean }>;
     signInWithGoogle: () => Promise<{ error: AuthError | null }>;
     signOut: () => Promise<void>;
     updateProfile: (data: Partial<User>) => Promise<{ error: Error | null }>;
@@ -112,20 +112,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             console.log('Auth state changed:', event);
             setSession(session);
-
-            if (event === 'SIGNED_IN' && session?.user) {
-                // Don't automatically fetch profile on sign in
-                // Let the callback page handle it
-                console.log('✅ User signed in:', session.user.id);
-                setLoading(false);
+            if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user) {
+                console.log('Active session found for user:', session.user.id);
+                fetchUserProfile(session.user.id).catch(err => {
+                    console.warn('Could not load profile from auth state change, using fallback profile:', err);
+                    setUser({
+                        id: session.user.id,
+                        email: session.user.email || 'user@example.com',
+                        full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'User',
+                        role: (session.user.user_metadata?.role as User['role']) || 'client',
+                        is_active: true,
+                        is_profile_complete: false,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                    } as User);
+                    setLoading(false);
+                });
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);
                 setLoading(false);
             } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-                // Skip profile fetch on token refresh if we already have a user loaded
-                // This prevents unnecessary timeouts when the session auto-refreshes
-                console.log('🔄 Token refreshed — user already loaded, skipping profile re-fetch');
-            } else {
+                console.log('Token refreshed - user already loaded, skipping profile re-fetch');
+            } else if (!session) {
                 setUser(null);
                 setLoading(false);
             }
@@ -387,7 +395,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             // Always ensure loading is set to false
             setLoading(false);
-            return { error: null };
+            return { error: null, requiresEmailConfirmation };
         } catch (error) {
             console.error('❌ Unexpected login error:', error);
             setLoading(false);
@@ -412,14 +420,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (!emailRegex.test(trimmedEmail)) {
                 setLoading(false);
                 console.error('❌ Email format invalid');
-                return { error: new Error('Please enter a valid email (e.g., user@example.com)') };
+                return { error: new Error('Please enter a valid email (e.g., user@example.com)'), requiresEmailConfirmation: false };
             }
 
             // Password validation
             if (data.password.length < 6) {
                 setLoading(false);
                 console.error('❌ Password too short');
-                return { error: new Error('Password must be at least 6 characters') };
+                return { error: new Error('Password must be at least 6 characters'), requiresEmailConfirmation: false };
             }
 
             console.log('✅ Validation passed, calling Supabase...');
@@ -458,20 +466,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     errorMessage = 'Password is too weak. Use at least 6 characters with letters and numbers.';
                 }
 
-                return { error: new Error(errorMessage) };
+                return { error: new Error(errorMessage), requiresEmailConfirmation: false };
             }
 
             if (!authData.user) {
                 setLoading(false);
                 console.error('❌ No user returned from signup');
-                return { error: new Error('Signup failed - no user created. Please try again.') };
+                return { error: new Error('Signup failed - no user created. Please try again.'), requiresEmailConfirmation: false };
             }
+            const requiresEmailConfirmation = !authData.session;
 
             console.log('✅ Auth user created! ID:', authData.user.id);
             console.log('📝 Creating user profile...');
 
             // Create user profile in database with timeout protection
             try {
+                if (!requiresEmailConfirmation) {
                 const upsertPromise = supabase
                     .from('users')
                     .upsert({
@@ -560,6 +570,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         console.warn('⚠️ Therapist profile creation timed out or failed:', tErr);
                     }
                 }
+            }
 
             } catch (dbError: any) {
                 console.error('❌ Database operation failed:', dbError);
@@ -568,18 +579,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     error: new Error(
                         'Account created but database setup failed. ' +
                         'Please contact support with this error: ' + dbError.message
-                    )
+                    ),
+                    requiresEmailConfirmation
                 };
             }
 
             console.log('🎉 === SIGNUP COMPLETED SUCCESSFULLY ===');
             setLoading(false);
-            return { error: null };
+            return { error: null, requiresEmailConfirmation };
 
         } catch (error: any) {
             console.error('❌ Unexpected error during signup:', error);
             setLoading(false);
-            return { error: new Error('Unexpected error: ' + error.message) };
+            return { error: new Error('Unexpected error: ' + error.message), requiresEmailConfirmation: false };
         }
     };
 
@@ -608,7 +620,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             console.log('✅ Google OAuth initiated, redirecting...');
             // Don't set loading to false - user will be redirected
-            return { error: null };
+            return { error: null, requiresEmailConfirmation };
         } catch (error) {
             console.error('❌ Unexpected Google OAuth error:', error);
             setLoading(false);
@@ -706,7 +718,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(updatedUser);
             console.log('✅ Local user state updated');
 
-            return { error: null };
+            return { error: null, requiresEmailConfirmation };
         } catch (error) {
             console.error('❌ Error completing profile:', error);
             return { error: error as Error };
@@ -739,3 +751,5 @@ export function useAuth() {
     }
     return context;
 }
+
+

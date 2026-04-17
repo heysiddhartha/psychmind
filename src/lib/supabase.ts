@@ -1,18 +1,18 @@
 // Supabase Configuration
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://rkzkpwaexadlwxqdfjlm.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_V7WzcNGV2x4J1OlDrepTnw_1sMgFz43';
 
 // Validate Supabase configuration in development
 if (import.meta.env.DEV) {
-  if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co') {
+  if (!supabaseUrl || supabaseUrl === 'https://rkzkpwaexadlwxqdfjlm.supabase.co') {
     console.error('❌ VITE_SUPABASE_URL is not configured. Please check your .env file.');
   }
-  if (!supabaseAnonKey || supabaseAnonKey === 'your-anon-key') {
+  if (!supabaseAnonKey || supabaseAnonKey === 'sb_publishable_V7WzcNGV2x4J1OlDrepTnw_1sMgFz43') {
     console.error('❌ VITE_SUPABASE_ANON_KEY is not configured. Please check your .env file.');
   }
-  if (supabaseUrl && supabaseUrl !== 'https://your-project.supabase.co') {
+  if (supabaseUrl && supabaseUrl !== 'https://rkzkpwaexadlwxqdfjlm.supabase.co') {
     console.log('✅ Supabase URL configured:', supabaseUrl);
   }
 }
