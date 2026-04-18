@@ -159,7 +159,7 @@ export default function Signup() {
     setIsSubmitting(true);
     setLoading(true);
     try {
-      const { error } = await signUpWithEmail({
+      const { error, requiresEmailConfirmation } = await signUpWithEmail({
         email: formData.email.trim(),
         password: formData.password,
         fullName: formData.fullName.trim(),
@@ -170,7 +170,7 @@ export default function Signup() {
       });
 
       if (error) {
-        console.error('❌ Signup error from form:', error);
+        console.error('Signup error from form:', error);
 
         if (error.message.includes("already registered") || error.message.includes("unique constraint")) {
           toast({
@@ -197,14 +197,22 @@ export default function Signup() {
           });
         }
       } else {
-        console.log('✅ Signup successful, redirecting...');
-        toast({
-          title: "Account Created!",
-          description: role === 'therapist'
-            ? "Welcome! Please complete your therapist profile for verification."
-            : "Welcome to psychmind! You can now book sessions.",
-        });
-        navigate(role === 'therapist' ? '/complete-profile' : '/dashboard');
+        console.log('Signup successful, redirecting...');
+        if (requiresEmailConfirmation) {
+          toast({
+            title: "Check Your Email",
+            description: "Your account was created. Please verify your email first, then sign in.",
+          });
+          navigate('/login');
+        } else {
+          toast({
+            title: "Account Created!",
+            description: role === 'therapist'
+              ? "Welcome! Please complete your therapist profile for verification."
+              : "Welcome to psychmind! You can now book sessions.",
+          });
+          navigate(role === 'therapist' ? '/complete-profile' : '/dashboard');
+        }
       }
     } catch (err) {
       console.error('❌ Unexpected error in signup form:', err);

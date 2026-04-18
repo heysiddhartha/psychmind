@@ -450,33 +450,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signUpWithEmail = async (data: SignUpData) => {
         try {
             setLoading(true);
-            console.log('🚀 === SIGNUP STARTED ===');
-            console.log('📧 Email:', data.email);
-            console.log('👤 Role:', data.role);
-            console.log('📛 Name:', data.fullName);
+            console.log('Signup started');
+            console.log('Email:', data.email);
+            console.log('Role:', data.role);
 
-            // Clean and validate email
             const trimmedEmail = data.email.trim().toLowerCase();
-            console.log('🧹 Cleaned email:', trimmedEmail);
-
-            // Simple email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(trimmedEmail)) {
                 setLoading(false);
-                console.error('❌ Email format invalid');
                 return { error: new Error('Please enter a valid email (e.g., user@example.com)'), requiresEmailConfirmation: false };
             }
 
-            // Password validation
             if (data.password.length < 6) {
                 setLoading(false);
-                console.error('❌ Password too short');
                 return { error: new Error('Password must be at least 6 characters'), requiresEmailConfirmation: false };
             }
 
-            console.log('✅ Validation passed, calling Supabase...');
-
-            // Sign up with Supabase Auth (SIMPLE - no email confirmation for now)
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: trimmedEmail,
                 password: data.password,
@@ -492,13 +481,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (authError) {
                 setLoading(false);
-                console.error('❌ Supabase Auth Error:', authError);
-                console.error('❌ Error Code:', authError.status);
-                console.error('❌ Error Message:', authError.message);
+                console.error('Supabase auth signup error:', authError);
 
-                // Handle specific errors
                 let errorMessage = authError.message;
-
                 if (authError.message.toLowerCase().includes('user already registered') ||
                     authError.message.toLowerCase().includes('already exists')) {
                     errorMessage = 'This email is already registered. Please try logging in instead.';
@@ -515,113 +500,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (!authData.user) {
                 setLoading(false);
-                console.error('❌ No user returned from signup');
                 return { error: new Error('Signup failed - no user created. Please try again.'), requiresEmailConfirmation: false };
             }
+
             const requiresEmailConfirmation = !authData.session;
 
-            console.log('✅ Auth user created! ID:', authData.user.id);
-            console.log('📝 Creating user profile...');
-
-            // Create user profile in database with timeout protection
             try {
                 if (!requiresEmailConfirmation) {
-                const upsertPromise = supabase
-                    .from('users')
-                    .upsert({
-                        id: authData.user.id,
-                        email: trimmedEmail,
-                        full_name: data.fullName,
-                        phone: data.phone,
-                        role: data.role,
-                        date_of_birth: data.dateOfBirth || null,
-                        gender: data.gender || null,
-                        is_profile_complete: !!(data.phone && data.dateOfBirth),
-                        is_active: true,
-                    }, { onConflict: 'id' });
+                    const upsertPromise = supabase
+                        .from('users')
+                        .upsert({
+                            id: authData.user.id,
+                            email: trimmedEmail,
+                            full_name: data.fullName,
+                            phone: data.phone,
+                            role: data.role,
+                            date_of_birth: data.dateOfBirth || null,
+                            gender: data.gender || null,
+                            is_profile_complete: !!(data.phone && data.dateOfBirth),
+                            is_active: true,
+                        }, { onConflict: 'id' });
 
-                // Add 10 second timeout
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Profile creation timeout - database may be slow')), 10000)
-                );
+                    const timeoutPromise = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('Profile creation timeout - database may be slow')), 10000)
+                    );
 
-                const result = await Promise.race([upsertPromise, timeoutPromise]) as any;
-                const profileError = result?.error;
+                    const result = await Promise.race([upsertPromise, timeoutPromise]) as any;
+                    const profileError = result?.error;
 
-                if (profileError) {
-                    console.error('❌ Profile creation error:', profileError);
-                    console.error('❌ Error code:', profileError.code);
-                    console.error('❌ Error details:', profileError.details);
-                    console.error('❌ Error hint:', profileError.hint);
-
-                    // Don't fail completely - user was created in auth
-                    console.warn('⚠️ User created in auth but profile failed. User can still login.');
-
-                    setLoading(false);
-                    return {
-                        error: new Error(
-                            'Account created but profile setup failed. ' +
-                            'Please try logging in - your account exists!'
-                        )
-                    };
-                }
-
-                console.log('✅ User profile created');
-
-                // Create patient_details for clients
-                if (data.role === 'client') {
-                    const { error: patientError } = await supabase
-                        .from('patient_details')
-                        .upsert({ user_id: authData.user.id }, { onConflict: 'user_id' });
-
-                    if (patientError) {
-                        console.warn('⚠️ Patient details creation failed:', patientError);
-                    } else {
-                        console.log('✅ Patient details created/updated');
+                    if (profileError) {
+                        console.error('Profile creation error:', profileError);
+                        console.warn('User created in auth but profile failed. Continuing with signup.');
                     }
-                }
 
-                // Create therapist profile for therapists (with timeout)
-                if (data.role === 'therapist') {
-                    console.log('📝 Creating therapist profile...');
-                    try {
-                        const therapistPromise = ensureTherapistProfileExists(authData.user.id);
+                    if (data.role === 'client') {
+                        const { error: patientError } = await supabase
+                            .from('patient_details')
+                            .upsert({ user_id: authData.user.id }, { onConflict: 'user_id' });
 
-                        const therapistTimeout = new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error('Therapist profile timeout')), 8000)
-                        );
-
-                        const tResult = await Promise.race([therapistPromise, therapistTimeout]) as any;
-
-                        if (tResult?.error) {
-                            console.warn('⚠️ Therapist profile creation failed:', tResult.error);
-                        } else {
-                            console.log('✅ Therapist profile created/updated');
+                        if (patientError) {
+                            console.warn('Patient details creation failed:', patientError);
                         }
-                    } catch (tErr) {
-                        console.warn('⚠️ Therapist profile creation timed out or failed:', tErr);
+                    }
+
+                    if (data.role === 'therapist') {
+                        try {
+                            const therapistPromise = ensureTherapistProfileExists(authData.user.id);
+                            const therapistTimeout = new Promise((_, reject) =>
+                                setTimeout(() => reject(new Error('Therapist profile timeout')), 8000)
+                            );
+                            await Promise.race([therapistPromise, therapistTimeout]);
+                        } catch (tErr) {
+                            console.warn('Therapist profile creation timed out or failed:', tErr);
+                        }
                     }
                 }
-            }
-
             } catch (dbError: any) {
-                console.error('❌ Database operation failed:', dbError);
-                setLoading(false);
-                return {
-                    error: new Error(
-                        'Account created but database setup failed. ' +
-                        'Please contact support with this error: ' + dbError.message
-                    ),
-                    requiresEmailConfirmation
-                };
+                console.error('Database operation failed:', dbError);
+                console.warn('Continuing signup because auth account was created and profile can be repaired later.');
             }
 
-            console.log('🎉 === SIGNUP COMPLETED SUCCESSFULLY ===');
             setLoading(false);
             return { error: null, requiresEmailConfirmation };
 
         } catch (error: any) {
-            console.error('❌ Unexpected error during signup:', error);
+            console.error('Unexpected error during signup:', error);
             setLoading(false);
             return { error: new Error('Unexpected error: ' + error.message), requiresEmailConfirmation: false };
         }

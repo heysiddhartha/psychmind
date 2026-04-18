@@ -378,6 +378,12 @@ const DEMO_THERAPISTS: TherapistWithDetails[] = [
 // Mock bookings storage (will be removed once database is fully integrated)
 const mockBookings: BookingDetails[] = [];
 
+function getMockBookingsForClient(userId: string): BookingDetails[] {
+    return mockBookings
+        .filter((booking) => booking.client_id === userId || booking.patient_id === userId)
+        .sort((a, b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime());
+}
+
 // ============================================
 // Timezone Helpers
 // ============================================
@@ -1053,28 +1059,32 @@ export async function createBooking(data: CreateBookingData): Promise<{ booking:
  * Get user's bookings
  */
 export async function getUserBookings(userId: string): Promise<BookingDetails[]> {
+    const demoBookings = getMockBookingsForClient(userId);
+
     try {
         const { data, error } = await supabase
             .from('bookings')
             .select(`
                 *,
-                therapist:therapists(
+                therapist:therapists!bookings_therapist_id_fkey(
                     *,
-                    user:users(*)
+                    user:users!therapists_user_id_fkey(*)
                 ),
-                patient:users!patient_id(*)
+                client:users!bookings_client_id_fkey(*)
             `)
-            .eq('patient_id', userId)
+            .eq('client_id', userId)
             .order('scheduled_at', { ascending: false });
 
         if (error) throw error;
-        if (data) return data as BookingDetails[];
+        if (data) {
+            return [...(data as BookingDetails[]), ...demoBookings]
+                .sort((a, b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime());
+        }
     } catch (error) {
         console.error('Error fetching user bookings:', error);
     }
 
-    // Return empty array if no bookings found
-    return [];
+    return demoBookings;
 }
 
 /**
@@ -1105,31 +1115,42 @@ export async function getTherapistBookings(therapistId: string): Promise<Booking
  */
 export async function getUpcomingBookings(userId: string): Promise<BookingDetails[]> {
     const now = new Date().toISOString();
+    const demoBookings = getMockBookingsForClient(userId)
+        .filter((booking) =>
+            ['pending', 'confirmed'].includes(booking.status) &&
+            new Date(booking.scheduled_at).toISOString() >= now
+        );
 
     try {
         const { data, error } = await supabase
             .from('bookings')
             .select(`
                 *,
-                therapist:therapists(
+                therapist:therapists!bookings_therapist_id_fkey(
                     *,
-                    user:users(*)
+                    user:users!therapists_user_id_fkey(*)
                 ),
-                patient:users!patient_id(*)
+                client:users!bookings_client_id_fkey(*)
             `)
-            .eq('patient_id', userId)
+            .eq('client_id', userId)
             .gte('scheduled_at', now)
             .in('status', ['pending', 'confirmed'])
             .order('scheduled_at', { ascending: true })
             .limit(5);
 
         if (error) throw error;
-        if (data) return data as BookingDetails[];
+        if (data) {
+            return [...(data as BookingDetails[]), ...demoBookings]
+                .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
+                .slice(0, 5);
+        }
     } catch (error) {
         console.error('Error fetching upcoming bookings:', error);
     }
 
-    return [];
+    return demoBookings
+        .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
+        .slice(0, 5);
 }
 
 /**
@@ -1358,12 +1379,13 @@ export async function getBookingStats(userId?: string): Promise<{
     cancelled: number;
 }> {
     const now = new Date().toISOString();
+    const demoBookings = userId ? getMockBookingsForClient(userId) : [];
 
     try {
         let query = supabase.from('bookings').select('status, scheduled_at', { count: 'exact' });
 
         if (userId) {
-            query = query.eq('patient_id', userId);
+            query = query.eq('client_id', userId);
         }
 
         const { data, error, count } = await query;
@@ -1371,14 +1393,15 @@ export async function getBookingStats(userId?: string): Promise<{
         if (error) throw error;
 
         if (data) {
+            const combined = [...data, ...demoBookings];
             return {
-                total: count || 0,
-                completed: data.filter(b => b.status === 'completed').length,
-                upcoming: data.filter(b =>
+                total: combined.length,
+                completed: combined.filter(b => b.status === 'completed').length,
+                upcoming: combined.filter(b =>
                     ['pending', 'confirmed'].includes(b.status) &&
                     new Date(b.scheduled_at) >= new Date()
                 ).length,
-                cancelled: data.filter(b => b.status === 'cancelled').length
+                cancelled: combined.filter(b => b.status === 'cancelled').length
             };
         }
     } catch (error) {
@@ -1386,10 +1409,13 @@ export async function getBookingStats(userId?: string): Promise<{
     }
 
     return {
-        total: 0,
-        completed: 0,
-        upcoming: 0,
-        cancelled: 0
+        total: demoBookings.length,
+        completed: demoBookings.filter(b => b.status === 'completed').length,
+        upcoming: demoBookings.filter(b =>
+            ['pending', 'confirmed'].includes(b.status) &&
+            new Date(b.scheduled_at) >= new Date()
+        ).length,
+        cancelled: demoBookings.filter(b => b.status === 'cancelled').length
     };
 }
 
