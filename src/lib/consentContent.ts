@@ -31,14 +31,14 @@ export const INTRO_SECTIONS: ConsentSection[] = [
   {
     id: 'introduction',
     title: '1. INTRODUCTION',
-    content: `The3tree is a mental health and wellbeing platform that connects users with qualified professionals, including psychiatrists, psychologists, counsellors, yoga instructors, and nutrition professionals.
+    content: `psychmind is a mental health and wellbeing platform that connects users with qualified professionals, including psychiatrists, psychologists, counsellors, yoga instructors, and nutrition professionals.
 Services are provided independently by professionals acting within their respective education, training, and scope of practice, as applicable under Indian law and ethical guidelines.`,
     isUniversal: true,
   },
   {
     id: 'emergency-disclaimer',
     title: '2. EMERGENCY DISCLAIMER',
-    content: `I understand that The3tree is not an emergency or crisis service.
+    content: `I understand that psychmind is not an emergency or crisis service.
 In case of immediate risk to myself or others, I agree to contact:
     • Local emergency services
     • The nearest hospital
@@ -217,7 +217,7 @@ I acknowledge that:
     content: `(For Clients Below 18 Years of Age)
 
 Please read carefully before proceeding.
-This consent applies to children and adolescents below 18 years receiving online mental health and wellness services through The3tree.
+This consent applies to children and adolescents below 18 years receiving online mental health and wellness services through psychmind.
 
 All services are provided with the child's best interests, safety, dignity, and developmental needs as the primary consideration, in accordance with Indian law and accepted ethical practice.
 
@@ -245,7 +245,7 @@ Information shared during sessions is treated as confidential. Confidentiality m
 Caregivers may receive relevant feedback while respecting the child's privacy.
 
 Emergency Disclaimer
-The3tree is not an emergency or crisis service. In case of immediate risk, local emergency services, hospitals, or child protection services must be contacted.
+psychmind is not an emergency or crisis service. In case of immediate risk, local emergency services, hospitals, or child protection services must be contacted.
 
 Voluntary Participation
 Participation in services is voluntary. Consent may be withdrawn at any time. No specific outcomes or improvements are guaranteed.

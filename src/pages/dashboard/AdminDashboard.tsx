@@ -29,6 +29,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
+import { getAdminStats, rejectTherapist, verifyTherapist } from '@/lib/services/adminService';
 
 // Mock data
 const platformStats = [
@@ -38,11 +40,17 @@ const platformStats = [
     { label: 'Revenue', value: '$48,250', icon: DollarSign, change: '+18% vs last month', color: 'text-amber-400' },
 ];
 
-const pendingApprovals = [
-    { id: 1, name: 'Dr. Emily Wright', specialty: 'Clinical Psychology', date: 'Jan 2, 2026', credentials: 'Ph.D., Licensed Psychologist' },
-    { id: 2, name: 'Dr. James Miller', specialty: 'Psychiatry', date: 'Jan 3, 2026', credentials: 'M.D., Board Certified' },
-    { id: 3, name: 'Dr. Lisa Chen', specialty: 'Counseling', date: 'Jan 4, 2026', credentials: 'LPC, NCC' },
-];
+type PendingApproval = {
+    id: string;
+    specialty: string;
+    date: string;
+    credentials: string;
+    application_status?: string | null;
+    users?: {
+        full_name?: string | null;
+        email?: string | null;
+    } | null;
+};
 
 const recentBookings = [
     { id: 'b1', patient: 'John D.', therapist: 'Dr. Sarah Johnson', date: 'Jan 4, 2026', time: '10:00 AM', status: 'confirmed', amount: 75 },
@@ -76,7 +84,10 @@ export default function AdminDashboard() {
     const { toast } = useToast();
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const [approvals, setApprovals] = useState(pendingApprovals);
+    const [approvals, setApprovals] = useState<PendingApproval[]>([]);
+    const [stats, setStats] = useState(platformStats);
+    const [loadingApprovals, setLoadingApprovals] = useState(true);
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
@@ -84,6 +95,97 @@ export default function AdminDashboard() {
             navigate('/login');
         }
     }, [user, authLoading, navigate]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        const loadDashboardData = async () => {
+            setLoadingApprovals(true);
+
+            try {
+                const [statsResult, approvalsResult] = await Promise.all([
+                    getAdminStats(),
+                    supabase
+                        .from('therapists')
+                        .select(`
+                            id,
+                            created_at,
+                            license_number,
+                            specialties,
+                            application_status,
+                            is_verified,
+                            users!therapists_user_id_fkey(full_name, email)
+                        `)
+                        .order('created_at', { ascending: false })
+                ]);
+
+                setStats([
+                    {
+                        label: 'Total Users',
+                        value: statsResult.totalUsers.toLocaleString(),
+                        icon: Users,
+                        change: `+${statsResult.newUsersThisMonth} this month`,
+                        color: 'text-blue-400'
+                    },
+                    {
+                        label: 'Active Therapists',
+                        value: statsResult.activeTherapists.toLocaleString(),
+                        icon: UserCheck,
+                        change: `${statsResult.pendingVerifications} pending approval`,
+                        color: 'text-green-400'
+                    },
+                    {
+                        label: 'Total Bookings',
+                        value: statsResult.totalBookings.toLocaleString(),
+                        icon: Calendar,
+                        change: `${statsResult.completedBookings} completed`,
+                        color: 'text-purple-400'
+                    },
+                    {
+                        label: 'Revenue',
+                        value: `$${statsResult.totalRevenue.toLocaleString()}`,
+                        change: 'Live database total',
+                        icon: DollarSign,
+                        color: 'text-amber-400'
+                    },
+                ]);
+
+                if (approvalsResult.error) {
+                    throw approvalsResult.error;
+                }
+
+                const pendingTherapists = (approvalsResult.data || [])
+                    .filter((therapist) => !therapist.is_verified)
+                    .map((therapist) => ({
+                        id: therapist.id,
+                        specialty: Array.isArray(therapist.specialties) && therapist.specialties.length > 0
+                            ? therapist.specialties.join(', ')
+                            : 'Specialty not added',
+                        date: new Date(therapist.created_at).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                        }),
+                        credentials: therapist.license_number || 'License not provided',
+                        application_status: therapist.application_status,
+                        users: Array.isArray(therapist.users) ? therapist.users[0] : therapist.users,
+                    }));
+
+                setApprovals(pendingTherapists);
+            } catch (error) {
+                console.error('Failed to load admin dashboard data:', error);
+                toast({
+                    title: 'Dashboard data unavailable',
+                    description: 'We could not load the latest therapist approvals right now.',
+                    variant: 'destructive'
+                });
+            } finally {
+                setLoadingApprovals(false);
+            }
+        };
+
+        void loadDashboardData();
+    }, [user, toast]);
 
     // Animate on load
     useEffect(() => {
@@ -99,21 +201,59 @@ export default function AdminDashboard() {
         );
     }, [authLoading]);
 
-    const handleApprove = (id: number) => {
+    const handleApprove = async (id: string) => {
+        setActionLoading(id);
+
+        const result = await verifyTherapist(id, 'Approved from admin dashboard');
+
+        if (!result.success) {
+            toast({
+                title: 'Approval failed',
+                description: result.error || 'We could not verify this therapist.',
+                variant: 'destructive'
+            });
+            setActionLoading(null);
+            return;
+        }
+
         setApprovals(prev => prev.filter(a => a.id !== id));
+        setStats(prev => prev.map((stat) => {
+            if (stat.label === 'Active Therapists') {
+                const current = Number(stat.value.replace(/,/g, '')) || 0;
+                return { ...stat, value: (current + 1).toLocaleString() };
+            }
+
+            return stat;
+        }));
         toast({
             title: 'Therapist Approved',
-            description: 'The therapist has been approved and notified.'
+            description: 'The therapist can now access the live dashboard.'
         });
+        setActionLoading(null);
     };
 
-    const handleReject = (id: number) => {
+    const handleReject = async (id: string) => {
+        setActionLoading(id);
+
+        const result = await rejectTherapist(id, 'Rejected from admin dashboard');
+
+        if (!result.success) {
+            toast({
+                title: 'Rejection failed',
+                description: result.error || 'We could not reject this therapist.',
+                variant: 'destructive'
+            });
+            setActionLoading(null);
+            return;
+        }
+
         setApprovals(prev => prev.filter(a => a.id !== id));
         toast({
             title: 'Application Rejected',
             description: 'The application has been rejected.',
             variant: 'destructive'
         });
+        setActionLoading(null);
     };
 
     const handleSignOut = async () => {
@@ -145,6 +285,20 @@ export default function AdminDashboard() {
         }
     };
 
+    const filteredApprovals = approvals.filter((approval) => {
+        const haystack = [
+            approval.users?.full_name,
+            approval.users?.email,
+            approval.specialty,
+            approval.credentials
+        ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+        return haystack.includes(searchQuery.toLowerCase());
+    });
+
     // Calculate max for chart
     const maxBookings = Math.max(...weeklyStats.map(s => s.bookings));
 
@@ -162,7 +316,7 @@ export default function AdminDashboard() {
     return (
         <>
             <Helmet>
-                <title>Admin Dashboard | 3-3.com Counseling</title>
+                <title>Admin Dashboard | psychmind</title>
             </Helmet>
             <div className="min-h-screen bg-gray-900">
                 {/* Header */}
@@ -214,7 +368,7 @@ export default function AdminDashboard() {
 
                     {/* Stats Grid */}
                     <div className="dashboard-card grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                        {platformStats.map((stat) => (
+                        {stats.map((stat) => (
                             <div key={stat.label} className="bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-gray-600 transition-colors">
                                 <div className="flex items-center justify-between mb-3">
                                     <stat.icon className={`w-5 h-5 ${stat.color}`} />
@@ -278,29 +432,35 @@ export default function AdminDashboard() {
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-3">
                                         <h2 className="text-xl font-semibold text-white">Pending Approvals</h2>
-                                        {approvals.length > 0 && (
+                                        {filteredApprovals.length > 0 && (
                                             <span className="px-2 py-1 text-xs font-medium bg-yellow-500/20 text-yellow-400 rounded-full">
-                                                {approvals.length} pending
+                                                {filteredApprovals.length} pending
                                             </span>
                                         )}
                                     </div>
-                                    <Link to="/admin/approvals" className="text-cyan-400 text-sm font-medium hover:underline">
-                                        View All
+                                    <Link to="/super-admin/dashboard" className="text-cyan-400 text-sm font-medium hover:underline">
+                                        Open Full Panel
                                     </Link>
                                 </div>
 
-                                {approvals.length > 0 ? (
+                                {loadingApprovals ? (
+                                    <div className="text-center py-8">
+                                        <Clock className="w-12 h-12 text-cyan-400 mx-auto mb-3 animate-pulse" />
+                                        <p className="text-gray-400">Loading therapist approvals...</p>
+                                    </div>
+                                ) : filteredApprovals.length > 0 ? (
                                     <div className="space-y-4">
-                                        {approvals.map((therapist) => (
+                                        {filteredApprovals.map((therapist) => (
                                             <div
                                                 key={therapist.id}
                                                 className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-gray-700/50 rounded-xl"
                                             >
                                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center text-gray-300 font-bold">
-                                                    {therapist.name.split(' ').map(n => n[0]).join('')}
+                                                    {therapist.users?.full_name?.split(' ').map(n => n[0]).join('') || 'T'}
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="font-semibold text-white">{therapist.name}</p>
+                                                    <p className="font-semibold text-white">{therapist.users?.full_name || 'Unknown therapist'}</p>
+                                                    <p className="text-sm text-gray-500">{therapist.users?.email || 'No email available'}</p>
                                                     <p className="text-sm text-gray-400">{therapist.specialty}</p>
                                                     <p className="text-xs text-gray-500 mt-1">{therapist.credentials}</p>
                                                 </div>
@@ -310,6 +470,7 @@ export default function AdminDashboard() {
                                                         size="sm"
                                                         variant="ghost"
                                                         onClick={() => handleReject(therapist.id)}
+                                                        disabled={actionLoading === therapist.id}
                                                         className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
                                                     >
                                                         <XCircle className="w-4 h-4 mr-1" />
@@ -318,10 +479,11 @@ export default function AdminDashboard() {
                                                     <Button
                                                         size="sm"
                                                         onClick={() => handleApprove(therapist.id)}
+                                                        disabled={actionLoading === therapist.id}
                                                         className="bg-green-600 hover:bg-green-500 text-white"
                                                     >
                                                         <CheckCircle2 className="w-4 h-4 mr-1" />
-                                                        Approve
+                                                        {actionLoading === therapist.id ? 'Saving...' : 'Approve'}
                                                     </Button>
                                                 </div>
                                             </div>
@@ -330,7 +492,7 @@ export default function AdminDashboard() {
                                 ) : (
                                     <div className="text-center py-8">
                                         <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                                        <p className="text-gray-400">All caught up! No pending approvals.</p>
+                                        <p className="text-gray-400">All caught up! No pending therapist approvals.</p>
                                     </div>
                                 )}
                             </div>

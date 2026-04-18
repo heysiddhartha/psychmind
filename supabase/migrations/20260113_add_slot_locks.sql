@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- Slot Locks Table Migration
 -- This enables real-time slot reservation/locking for the booking system
 -- to prevent double-bookings and race conditions
@@ -230,3 +231,4 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON slot_locks TO authenticated;
 GRANT EXECUTE ON FUNCTION lock_slot TO authenticated;
 GRANT EXECUTE ON FUNCTION create_booking_atomic TO authenticated;
 GRANT EXECUTE ON FUNCTION cleanup_expired_slot_locks TO authenticated;
+

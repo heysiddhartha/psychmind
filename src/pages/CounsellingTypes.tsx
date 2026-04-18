@@ -183,7 +183,7 @@ export default function CounsellingTypes() {
   return (
     <>
       <Helmet>
-        <title>Counselling Types | The 3 Tree - Mental Health Services</title>
+        <title>Counselling Types | psychmind - Mental Health Services</title>
         <meta
           name="description"
           content="Explore our counselling services: Individual, Couple, Group, Child & Adolescent Therapy, and Holistic Consciousness Healing."

@@ -35,11 +35,11 @@ export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
 // Email Templates
 export const emailTemplates = {
   therapistVerified: (name: string) => ({
-    subject: '🎉 Your The 3 Tree Application is Approved!',
+    subject: '🎉 Your psychmind Application is Approved!',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #0ea5e9, #3b82f6); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Welcome to The 3 Tree!</h1>
+          <h1 style="color: white; margin: 0;">Welcome to psychmind!</h1>
         </div>
         <div style="padding: 30px; background: #f9fafb;">
           <p>Dear ${name},</p>
@@ -61,7 +61,7 @@ export const emailTemplates = {
   }),
 
   therapistRejected: (name: string, reason: string) => ({
-    subject: 'Update on Your The 3 Tree Application',
+    subject: 'Update on Your psychmind Application',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #374151; padding: 30px; text-align: center;">
@@ -69,7 +69,7 @@ export const emailTemplates = {
         </div>
         <div style="padding: 30px; background: #f9fafb;">
           <p>Dear ${name},</p>
-          <p>Thank you for your interest in joining The 3 Tree.</p>
+          <p>Thank you for your interest in joining psychmind.</p>
           <p>After careful review, we're unable to approve your application at this time.</p>
           <div style="background: #fef2f2; padding: 15px; border-left: 4px solid #ef4444; margin: 20px 0;">
             <strong>Reason:</strong> ${reason}
@@ -132,7 +132,7 @@ export const emailTemplates = {
   }),
 
   passwordReset: (name: string, resetLink: string) => ({
-    subject: 'Reset Your Password - The 3 Tree',
+    subject: 'Reset Your Password - psychmind',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #374151; padding: 30px; text-align: center;">

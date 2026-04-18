@@ -110,7 +110,7 @@ export default function SupportBusinesses() {
   return (
     <>
       <Helmet>
-        <title>Support for Businesses | The 3 Tree - Workplace Mental Health</title>
+        <title>Support for Businesses | psychmind - Workplace Mental Health</title>
         <meta
           name="description"
           content="Enhancing workplace well-being, emotional intelligence, and team resilience through evidence-based psychological support for businesses."

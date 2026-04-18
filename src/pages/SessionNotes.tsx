@@ -368,7 +368,7 @@ export default function SessionNotes() {
 
     return (
         <>
-            <Helmet><title>Session Notes | The 3 Tree</title></Helmet>
+            <Helmet><title>Session Notes | psychmind</title></Helmet>
             <div className="min-h-screen bg-gray-50">
                 {/* Header */}
                 <header className="bg-white border-b border-gray-100 sticky top-0 z-50">

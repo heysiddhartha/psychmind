@@ -305,7 +305,7 @@ export default function Topics() {
   return (
     <>
       <Helmet>
-        <title>A-Z Mental Health Topics | The 3 Tree</title>
+        <title>A-Z Mental Health Topics | psychmind</title>
         <meta
           name="description"
           content="Explore our comprehensive A-Z guide of mental health topics, conditions, and therapies."

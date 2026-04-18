@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- Migration: Add prescriptions table and improve session notes
 -- Date: 2026-02-05
 -- Description: Adds prescription system for therapists and improves data sync
@@ -36,6 +37,7 @@ CREATE INDEX IF NOT EXISTS idx_prescriptions_created ON public.prescriptions(cre
 ALTER TABLE public.prescriptions ENABLE ROW LEVEL SECURITY;
 
 -- Therapists can manage their own prescriptions
+DROP POLICY IF EXISTS "Therapists manage own prescriptions" ON public.prescriptions;
 CREATE POLICY "Therapists manage own prescriptions" ON public.prescriptions
     FOR ALL
     USING (
@@ -45,6 +47,7 @@ CREATE POLICY "Therapists manage own prescriptions" ON public.prescriptions
     );
 
 -- Patients can view their own prescriptions
+DROP POLICY IF EXISTS "Patients view own prescriptions" ON public.prescriptions;
 CREATE POLICY "Patients view own prescriptions" ON public.prescriptions
     FOR SELECT
     USING (patient_id = auth.uid());
@@ -86,6 +89,7 @@ CREATE TABLE IF NOT EXISTS public.session_notes (
 -- RLS for session_notes
 ALTER TABLE public.session_notes ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Therapists manage own session notes" ON public.session_notes;
 CREATE POLICY "Therapists manage own session notes" ON public.session_notes
     FOR ALL
     USING (
@@ -167,3 +171,4 @@ CREATE TRIGGER update_session_notes_updated_at
     BEFORE UPDATE ON public.session_notes
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
+

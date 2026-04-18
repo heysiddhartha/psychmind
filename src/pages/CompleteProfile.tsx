@@ -21,13 +21,21 @@ export default function CompleteProfile() {
         dateOfBirth: "",
         gender: "" as "" | "male" | "female" | "other" | "prefer_not_to_say",
     });
+    const isTherapist = user?.role === 'therapist';
 
     useEffect(() => {
-        // If user is already complete, redirect to dashboard
-        if (user?.is_profile_complete && !authLoading) {
-            navigate("/dashboard");
+        // Clients should not revisit this page once complete, but therapists
+        // still use it as part of their onboarding/setup flow.
+        if (user?.is_profile_complete && user.role !== 'therapist' && !authLoading) {
+            navigate(user.role === 'therapist' ? "/dashboard/therapist" : "/dashboard");
         }
     }, [user, authLoading, navigate]);
+
+    useEffect(() => {
+        if (!authLoading && !user) {
+            navigate("/login");
+        }
+    }, [authLoading, user, navigate]);
 
     // Wait for auth to load
     if (authLoading) {
@@ -40,7 +48,6 @@ export default function CompleteProfile() {
 
     // If no user, redirect to login
     if (!user) {
-        navigate("/login");
         return null;
     }
 
@@ -114,10 +121,12 @@ export default function CompleteProfile() {
         } else {
             toast({
                 title: "Profile Complete!",
-                description: "Your profile has been updated successfully.",
+                description: isTherapist
+                    ? "Your therapist profile is set up. You can now access your dashboard while verification is pending."
+                    : "Your profile has been updated successfully.",
             });
             await refreshUser();
-            navigate("/dashboard");
+            navigate(user.role === 'therapist' ? "/dashboard/therapist" : "/dashboard");
         }
 
         setLoading(false);
@@ -126,8 +135,13 @@ export default function CompleteProfile() {
     return (
         <>
             <Helmet>
-                <title>Complete Your Profile | psychmind</title>
-                <meta name="description" content="Complete your profile to start booking therapy sessions." />
+                <title>{isTherapist ? "Complete Therapist Profile" : "Complete Your Profile"} | psychmind</title>
+                <meta
+                    name="description"
+                    content={isTherapist
+                        ? "Complete your therapist profile to access your dashboard and prepare for verification."
+                        : "Complete your profile to start booking therapy sessions."}
+                />
             </Helmet>
 
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50/30 flex items-center justify-center p-4">
@@ -147,7 +161,9 @@ export default function CompleteProfile() {
                             </div>
                             <h1 className="font-serif text-3xl text-gray-900 mb-2">Complete Your Profile</h1>
                             <p className="text-gray-600">
-                                We need a few more details to personalize your experience
+                                {isTherapist
+                                    ? "We need a few more details to activate your therapist dashboard and verification flow"
+                                    : "We need a few more details to personalize your experience"}
                             </p>
                         </div>
 

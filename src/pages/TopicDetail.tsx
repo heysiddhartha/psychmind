@@ -115,8 +115,8 @@ const topicsData: Record<string, {
         content: "If you or someone you know is experiencing persistent difficulties with attention, impulsivity, or hyperactivity that interfere with daily life, it may be time to consult a mental health professional. Early intervention can make a significant difference in managing symptoms and improving quality of life."
       },
       {
-        title: "How The 3 Tree Can Help",
-        content: "At The 3 Tree, we understand that ADHD affects every aspect of life. Our team of experienced therapists offers personalized assessments, evidence-based treatments, and ongoing support to help you or your loved one thrive. Whether you're seeking a diagnosis, therapy, or practical strategies for daily life, we're here to guide you every step of the way."
+        title: "How psychmind Can Help",
+        content: "At psychmind, we understand that ADHD affects every aspect of life. Our team of experienced therapists offers personalized assessments, evidence-based treatments, and ongoing support to help you or your loved one thrive. Whether you're seeking a diagnosis, therapy, or practical strategies for daily life, we're here to guide you every step of the way."
       }
     ],
     relatedTopics: ["Anxiety", "Depression", "Autism", "Learning Disabilities", "Executive Functioning"]
@@ -1493,7 +1493,7 @@ export default function TopicDetail() {
   return (
     <>
       <Helmet>
-        <title>{topic.title} - {topic.subtitle} | The 3 Tree</title>
+        <title>{topic.title} - {topic.subtitle} | psychmind</title>
         <meta name="description" content={topic.intro.substring(0, 160)} />
       </Helmet>
       <Layout>

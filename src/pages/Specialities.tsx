@@ -196,7 +196,7 @@ export default function Specialities() {
   return (
     <>
       <Helmet>
-        <title>Clinical Expertise & Specialties | The 3 Tree</title>
+        <title>Clinical Expertise & Specialties | psychmind</title>
         <meta
           name="description"
           content="Explore our comprehensive range of clinical expertise including addiction, depression, trauma, relationships, family therapy, and holistic wellbeing."

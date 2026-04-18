@@ -776,7 +776,7 @@ export default function VideoCallRoom() {
     return (
         <>
             <Helmet>
-                <title>Video Session | The 3 Tree Counseling</title>
+                <title>Video Session | psychmind</title>
             </Helmet>
 
             <div className="min-h-screen bg-gray-900 flex flex-col relative">
@@ -1377,7 +1377,7 @@ export default function VideoCallRoom() {
                             </div>
                         </div>
                         <div className="text-gray-500">
-                            Powered by <span className="text-primary">The 3 Tree Counseling</span>
+                            Powered by <span className="text-primary">psychmind</span>
                         </div>
                     </div>
                 </footer>

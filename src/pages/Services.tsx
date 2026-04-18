@@ -132,7 +132,7 @@ export default function Services() {
   return (
     <>
       <Helmet>
-        <title>Support We Offer | The 3 Tree - Therapy & Counselling</title>
+        <title>Support We Offer | psychmind - Therapy & Counselling</title>
         <meta
           name="description"
           content="Explore our support services: supervision for therapists, school wellbeing programs, organisational mental health support, and expert-led workshops. Building healthier communities together."

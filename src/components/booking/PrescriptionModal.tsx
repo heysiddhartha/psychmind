@@ -560,7 +560,7 @@ function formatPrescriptionMessage(
     }
 
     message += `\n━━━━━━━━━━━━━━━━━━\n`;
-    message += `🏥 3tree Counseling`;
+    message += `🏥 psychmind`;
 
     return message;
 }

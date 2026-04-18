@@ -201,8 +201,8 @@ export default function Login() {
   return (
     <>
       <Helmet>
-        <title>Sign In | The 3 Tree - Mental Wellness</title>
-        <meta name="description" content="Sign in to your The 3 Tree account to access therapy sessions, track progress, and connect with your therapist." />
+        <title>Sign In | psychmind - Mental Wellness</title>
+        <meta name="description" content="Sign in to your psychmind account to access therapy sessions, track progress, and connect with your therapist." />
       </Helmet>
       <Layout>
         <section ref={pageRef} className="min-h-screen auth-gradient-bg py-20 pt-28 flex items-center relative">

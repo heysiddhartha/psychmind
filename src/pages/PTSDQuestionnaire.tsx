@@ -52,7 +52,7 @@ export default function PTSDQuestionnaire() {
   return (
     <>
       <Helmet>
-        <title>PC-PTSD-5 Assessment | The 3 Tree</title>
+        <title>PC-PTSD-5 Assessment | psychmind</title>
         <meta name="description" content="Take the PC-PTSD-5 trauma screening questionnaire" />
       </Helmet>
       <Layout>

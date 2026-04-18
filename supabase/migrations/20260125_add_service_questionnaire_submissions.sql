@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- Migration: Add service questionnaire submissions table
 -- This table stores intake questionnaire responses for each service type
 
@@ -56,7 +57,7 @@ CREATE POLICY "Therapists can view patient questionnaire submissions"
         )
         AND EXISTS (
             SELECT 1 FROM bookings b
-            WHERE b.patient_id = service_questionnaire_submissions.user_id
+            WHERE b.client_id = service_questionnaire_submissions.user_id
             AND b.therapist_id IN (
                 SELECT id FROM therapists WHERE user_id = auth.uid()
             )
@@ -95,3 +96,4 @@ COMMENT ON TABLE service_questionnaire_submissions IS 'Stores intake questionnai
 COMMENT ON COLUMN service_questionnaire_submissions.questionnaire_id IS 'Identifier for the questionnaire type (e.g., individual-couples-intake, group-therapy-intake)';
 COMMENT ON COLUMN service_questionnaire_submissions.service_type IS 'The service type selected (e.g., individual, couple, group, yoga)';
 COMMENT ON COLUMN service_questionnaire_submissions.data IS 'JSON object containing all questionnaire responses';
+

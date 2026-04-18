@@ -157,7 +157,7 @@ export default function SupportSchools() {
   return (
     <>
       <Helmet>
-        <title>Support for Schools & Institutions | The 3 Tree</title>
+        <title>Support for Schools & Institutions | psychmind</title>
         <meta
           name="description"
           content="Holistic mental-health framework supporting students, empowering teachers, and guiding parents—creating emotionally stable and resilient learning ecosystems."

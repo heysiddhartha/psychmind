@@ -143,7 +143,7 @@ const emailTemplates = {
                     <tr>
                         <td style="background-color: #f9fafb; padding: 24px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
                             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                                © 2026 3-3.com Counseling. All rights reserved.
+                                © 2026 psychmind. All rights reserved.
                             </p>
                             <p style="color: #9ca3af; font-size: 12px; margin: 8px 0 0;">
                                 <a href="#" style="color: #6b7280; text-decoration: none;">Unsubscribe</a> • 

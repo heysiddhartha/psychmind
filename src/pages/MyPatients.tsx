@@ -151,7 +151,7 @@ export default function MyPatients() {
     return (
         <>
             <Helmet>
-                <title>My Patients | The 3 Tree</title>
+                <title>My Patients | psychmind</title>
             </Helmet>
             <div className="min-h-screen bg-gray-50">
                 {/* Header */}

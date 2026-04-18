@@ -51,7 +51,7 @@ export default function SCOFFQuestionnaire() {
   return (
     <>
       <Helmet>
-        <title>SCOFF Eating Disorders Assessment | The 3 Tree</title>
+        <title>SCOFF Eating Disorders Assessment | psychmind</title>
         <meta name="description" content="Take the SCOFF eating disorder screening questionnaire" />
       </Helmet>
       <Layout>

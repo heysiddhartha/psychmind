@@ -58,7 +58,7 @@ export default function PHQ9Questionnaire() {
   return (
     <>
       <Helmet>
-        <title>PHQ-9 Depression Assessment | The 3 Tree</title>
+        <title>PHQ-9 Depression Assessment | psychmind</title>
         <meta name="description" content="Take the PHQ-9 depression screening questionnaire" />
       </Helmet>
       <Layout>

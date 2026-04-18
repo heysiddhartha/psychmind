@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- ==========================================
 -- SCHEDULED REMINDERS TABLE
 -- For automated booking reminders
@@ -28,6 +29,7 @@ CREATE INDEX IF NOT EXISTS idx_reminders_status ON public.scheduled_reminders(st
 -- RLS policies
 ALTER TABLE public.scheduled_reminders ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "System manages reminders" ON public.scheduled_reminders;
 CREATE POLICY "System manages reminders" ON public.scheduled_reminders
     FOR ALL USING (true);
 
@@ -136,3 +138,4 @@ END $$;
 
 -- Enable realtime for reminders
 ALTER PUBLICATION supabase_realtime ADD TABLE public.scheduled_reminders;
+

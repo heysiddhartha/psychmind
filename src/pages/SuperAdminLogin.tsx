@@ -253,7 +253,7 @@ export default function SuperAdminLogin() {
 
     return (
         <>
-            <Helmet><title>Super Admin Login | The 3 Tree</title></Helmet>
+            <Helmet><title>Super Admin Login | psychmind</title></Helmet>
 
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
                 <div className="w-full max-w-md">

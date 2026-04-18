@@ -77,6 +77,46 @@ const ensureUserProfileExists = async (authUser: SupabaseAuthUser | null) => {
     }
 };
 
+// Therapists also need a row in the public "therapists" table before their
+// dashboard can load. Keep this payload compatible with the base schema.
+const ensureTherapistProfileExists = async (userId: string | undefined | null) => {
+    if (!userId) {
+        return;
+    }
+
+    const { data: existingTherapist } = await supabase
+        .from('therapists')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    if (existingTherapist) {
+        return;
+    }
+
+    const { error } = await supabase
+        .from('therapists')
+        .insert({
+            user_id: userId,
+            bio: '',
+            specialties: [],
+            languages: ['English'],
+            years_experience: 0,
+            session_rate_individual: 75.0,
+            session_rate_couple: 100.0,
+            session_rate_family: 120.0,
+            accepts_new_clients: true,
+            is_verified: false,
+            is_active: false,
+        });
+
+    if (error) {
+        console.warn('⚠️ Could not create therapist profile row:', error);
+    } else {
+        console.log('✅ Therapist profile created for:', userId);
+    }
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [session, setSession] = useState<Session | null>(null);
@@ -218,6 +258,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
             if (data) {
+                if (data.role === 'therapist') {
+                    await ensureTherapistProfileExists(data.id);
+                }
+
                 // Update last_seen_at (don't wait for it)
                 (async () => {
                     try {
@@ -395,7 +439,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             // Always ensure loading is set to false
             setLoading(false);
-            return { error: null, requiresEmailConfirmation };
+            return { error: null };
         } catch (error) {
             console.error('❌ Unexpected login error:', error);
             setLoading(false);
@@ -541,19 +585,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 if (data.role === 'therapist') {
                     console.log('📝 Creating therapist profile...');
                     try {
-                        const therapistPromise = supabase
-                            .from('therapists')
-                            .upsert({
-                                user_id: authData.user.id,
-                                bio: '',
-                                specialties: [],
-                                languages: ['English'],
-                                years_experience: 0,
-                                hourly_rate: 75.00,
-                                is_verified: false,
-                                is_active: false,
-                                is_approved: false,
-                            }, { onConflict: 'user_id' });
+                        const therapistPromise = ensureTherapistProfileExists(authData.user.id);
 
                         const therapistTimeout = new Promise((_, reject) =>
                             setTimeout(() => reject(new Error('Therapist profile timeout')), 8000)
@@ -706,6 +738,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             console.log('✅ Profile updated successfully in database');
 
+            if (user.role === 'therapist') {
+                await ensureTherapistProfileExists(user.id);
+            }
+
             // Update local user state immediately
             const updatedUser = {
                 ...user,
@@ -718,7 +754,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(updatedUser);
             console.log('✅ Local user state updated');
 
-            return { error: null, requiresEmailConfirmation };
+            return { error: null };
         } catch (error) {
             console.error('❌ Error completing profile:', error);
             return { error: error as Error };

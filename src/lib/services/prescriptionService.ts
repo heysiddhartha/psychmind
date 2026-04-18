@@ -449,7 +449,7 @@ export function generatePrescriptionHtml(prescription: Prescription): string {
 </head>
 <body>
     <div class="header">
-        <div class="clinic-name">3tree Counseling</div>
+        <div class="clinic-name">psychmind</div>
         <div class="clinic-tagline">Professional Mental Health Services</div>
     </div>
 
@@ -530,7 +530,7 @@ export function generatePrescriptionHtml(prescription: Prescription): string {
         </div>
     </div>
 
-    <div class="watermark">3tree Counseling • www.the3tree.com</div>
+    <div class="watermark">psychmind • www.the3tree.com</div>
 </body>
 </html>
     `;

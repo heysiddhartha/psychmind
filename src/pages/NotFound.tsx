@@ -20,7 +20,7 @@ export default function NotFound() {
   return (
     <Layout>
       <Helmet>
-        <title>Page Not Found | 3-3.com Counseling</title>
+        <title>Page Not Found | psychmind</title>
       </Helmet>
 
       <div className="min-h-[80vh] flex items-center justify-center px-4">

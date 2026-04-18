@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- Migration: Ensure Super Admin and System Settings for PIN
 -- 1. Ensure system_settings table exists
 CREATE TABLE IF NOT EXISTS system_settings (
@@ -51,3 +52,4 @@ with check (
 -- Current Logic: Client-side check requires fetching the PIN. 
 -- Ideally we verify server-side, but for now we'll fetch it.
 -- Let's make sure only super_admins can read specific security keys.
+

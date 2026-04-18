@@ -150,7 +150,7 @@ export async function openPaymentModal(
         key: RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
-        name: 'The 3 Tree',
+        name: 'psychmind',
         description: `${options.serviceName} with ${options.therapistName}`,
         prefill: {
             name: options.customerName,

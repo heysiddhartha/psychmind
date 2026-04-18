@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 // Critical pages loaded eagerly (landing + auth)
 import Home from "./pages/Index";
@@ -56,7 +57,7 @@ const SupportWorkshops = lazy(() => import("./pages/SupportWorkshops"));
 
 // Dashboard Pages
 const PatientDashboard = lazy(() => import("./pages/dashboard/PatientDashboard"));
-const TherapistDashboard = lazy(() => import("./pages/dashboard/TherapistDashboard"));
+const TherapistDashboard = lazy(() => import("./pages/dashboard/TherapistDashboardNew"));
 const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
 const SuperAdminDashboard = lazy(() => import("./pages/dashboard/SuperAdminDashboard"));
 const SuperAdminLogin = lazy(() => import("./pages/SuperAdminLogin"));
@@ -163,12 +164,32 @@ const App = () => (
                 <Route path="/settings" element={<Profile />} />
 
                 {/* Protected Routes - Dashboards */}
-                <Route path="/dashboard" element={<DashboardRouter />} />
-                <Route path="/dashboard/patient" element={<PatientDashboard />} />
-                <Route path="/dashboard/therapist" element={<TherapistDashboard />} />
-                <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <DashboardRouter />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/patient" element={
+                  <ProtectedRoute allowedRoles={['client']}>
+                    <PatientDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/therapist" element={
+                  <ProtectedRoute allowedRoles={['therapist']}>
+                    <TherapistDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/admin" element={
+                  <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
                 <Route path="/super-admin" element={<SuperAdminLogin />} />
-                <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
+                <Route path="/super-admin/dashboard" element={
+                  <ProtectedRoute allowedRoles={['super_admin']}>
+                    <SuperAdminDashboard />
+                  </ProtectedRoute>
+                } />
 
                 {/* Booking */}
                 <Route path="/booking" element={<BookingPage />} />

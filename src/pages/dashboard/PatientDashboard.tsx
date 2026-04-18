@@ -222,7 +222,7 @@ export default function PatientDashboard() {
     return (
         <>
             <Helmet>
-                <title>Patient Dashboard | The 3 Tree</title>
+                <title>Patient Dashboard | psychmind</title>
             </Helmet>
             <div className="min-h-screen bg-gray-50">
                 {/* Header */}
@@ -231,14 +231,14 @@ export default function PatientDashboard() {
                         <Link to="/" className="flex items-center gap-3">
                             <img
                                 src="/logo.png"
-                                alt="The 3 Tree"
+                                alt="psychmind"
                                 className="h-10 w-auto"
                                 onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                 }}
                             />
                             <div className="hidden sm:flex flex-col">
-                                <span className="font-serif text-lg font-bold text-slate-800">The 3 Tree</span>
+                                <span className="font-serif text-lg font-bold text-slate-800">psychmind</span>
                                 <span className="text-[10px] text-slate-500 -mt-0.5">Mental Wellness</span>
                             </div>
                             <span className="ml-2 text-xs font-medium px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full">

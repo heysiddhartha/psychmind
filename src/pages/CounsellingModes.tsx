@@ -102,7 +102,7 @@ export default function CounsellingModes() {
   return (
     <>
       <Helmet>
-        <title>Counselling Modes | The 3 Tree - Online Therapy Options</title>
+        <title>Counselling Modes | psychmind - Online Therapy Options</title>
         <meta
           name="description"
           content="Choose your preferred counselling mode: Telephonic, Video, or Text/Chat. Flexible, secure, and professional mental health support."

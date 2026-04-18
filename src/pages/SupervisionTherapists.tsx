@@ -156,7 +156,7 @@ export default function SupervisionTherapists() {
   return (
     <>
       <Helmet>
-        <title>Supervision For Therapists | The 3 Tree</title>
+        <title>Supervision For Therapists | psychmind</title>
         <meta
           name="description"
           content="Professional supervision for therapists. Individual, Advanced, and Group supervision options with evidence-based guidance and reflective practice."

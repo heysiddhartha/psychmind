@@ -95,7 +95,7 @@ const pricingFactors = [
 ];
 
 const faqs = [
-  { q: "How can I lift my mood?", a: "Some things that help our clients lift their moods are taking walks, connecting with loved ones, making art, and attending therapy every week. Low mood is a common experience in today's world, and the experienced therapists at The 3 Tree are ready to help you feel like yourself again." },
+  { q: "How can I lift my mood?", a: "Some things that help our clients lift their moods are taking walks, connecting with loved ones, making art, and attending therapy every week. Low mood is a common experience in today's world, and the experienced therapists at psychmind are ready to help you feel like yourself again." },
   { q: "What does an anxiety attack feel like?", a: "An anxiety attack can involve rapid heartbeat, shortness of breath, sweating, trembling, feeling of losing control, and intense fear. Everyone's experience is different, and our therapists can help you understand and manage these symptoms." },
   { q: "Can I talk about my relationship in individual therapy?", a: "Yes, absolutely. Individual therapy is a safe space to explore any aspect of your life, including relationships. Your therapist can help you understand relationship patterns, communicate better, and make healthier choices." },
   { q: "How do I know if I need to see a therapist?", a: "If you're experiencing persistent distress, difficulty functioning in daily life, relationship problems, overwhelming emotions, or simply want personal growth, therapy can help. You don't need to be in crisis to benefit from therapy." },
@@ -107,7 +107,7 @@ export default function SupportWorkshops() {
   return (
     <>
       <Helmet>
-        <title>Support Workshops | The 3 Tree - Mental Health Workshops</title>
+        <title>Support Workshops | psychmind - Mental Health Workshops</title>
         <meta
           name="description"
           content="Professional mental health workshops and training programs for institutions, organizations, and communities."

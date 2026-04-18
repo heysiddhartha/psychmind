@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- ==========================================
 -- FIX: Add missing INSERT policy for users table
 -- Also add missing tables for full functionality
@@ -66,3 +67,4 @@ GRANT ALL ON public.therapist_availability TO authenticated;
 GRANT SELECT ON public.therapists TO anon;
 GRANT SELECT ON public.users TO anon;
 GRANT SELECT ON public.therapist_availability TO anon;
+

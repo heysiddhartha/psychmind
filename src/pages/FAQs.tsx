@@ -67,10 +67,10 @@ export default function FAQs() {
   return (
     <>
       <Helmet>
-        <title>FAQs | The 3 Tree - Frequently Asked Questions</title>
+        <title>FAQs | psychmind - Frequently Asked Questions</title>
         <meta
           name="description"
-          content="Find answers to common questions about The 3 Tree's therapy services, booking, confidentiality, and more. Learn everything you need to know before your first session."
+          content="Find answers to common questions about psychmind's therapy services, booking, confidentiality, and more. Learn everything you need to know before your first session."
         />
       </Helmet>
       <Layout>

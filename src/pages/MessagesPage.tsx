@@ -236,7 +236,7 @@ export default function MessagesPage() {
     return (
         <>
             <Helmet>
-                <title>Messages | The 3 Tree Counseling</title>
+                <title>Messages | psychmind</title>
             </Helmet>
             <div className="min-h-screen bg-gray-50 flex">
                 {/* Sidebar - Conversations List */}

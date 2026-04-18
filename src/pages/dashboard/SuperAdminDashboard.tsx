@@ -226,7 +226,7 @@ function SuperAdminDashboardContent() {
 
     return (
         <>
-            <Helmet><title>Super Admin Dashboard | The 3 Tree</title></Helmet>
+            <Helmet><title>Super Admin Dashboard | psychmind</title></Helmet>
 
             <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
                 {/* Header */}
@@ -238,7 +238,7 @@ function SuperAdminDashboardContent() {
                             </div>
                             <div>
                                 <h1 className="text-xl font-bold">Super Admin Panel</h1>
-                                <p className="text-xs text-slate-400">The 3 Tree Management Console</p>
+                                <p className="text-xs text-slate-400">psychmind Management Console</p>
                             </div>
                         </div>
 

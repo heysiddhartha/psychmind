@@ -88,7 +88,7 @@ export async function sendBookingConfirmation(data: BookingAutomationData): Prom
         // Send confirmation email (via Supabase Edge Function if configured)
         await sendBookingEmail({
             to: data.clientEmail,
-            subject: 'Booking Confirmation - The 3 Tree',
+            subject: 'Booking Confirmation - psychmind',
             template: 'booking_confirmation',
             data: {
                 clientName: data.clientName,
@@ -217,7 +217,7 @@ export async function sendMeetingLink(data: BookingAutomationData, meetingUrl: s
         // Send email
         await sendBookingEmail({
             to: data.clientEmail,
-            subject: 'Your Session Link - The 3 Tree',
+            subject: 'Your Session Link - psychmind',
             template: 'meeting_link',
             data: {
                 clientName: data.clientName,
@@ -310,7 +310,7 @@ export async function handleBookingCancellation(
             // Send cancellation email
             await sendBookingEmail({
                 to: booking.client.email,
-                subject: 'Session Cancelled - The 3 Tree',
+                subject: 'Session Cancelled - psychmind',
                 template: 'booking_cancelled',
                 data: {
                     clientName: booking.client.full_name,
@@ -442,13 +442,13 @@ export async function sendSessionReminderSMS(data: {
 
     if (data.minutesBefore >= 60 * 24) {
         // 24 hour reminder
-        message = `Hi ${data.clientName}, this is a reminder for your session with ${data.therapistName} tomorrow at ${timeStr}. We look forward to seeing you! - The 3 Tree`;
+        message = `Hi ${data.clientName}, this is a reminder for your session with ${data.therapistName} tomorrow at ${timeStr}. We look forward to seeing you! - psychmind`;
     } else if (data.minutesBefore >= 60) {
         // 1 hour reminder with link
-        message = `Hi ${data.clientName}, your session with ${data.therapistName} starts in 1 hour at ${timeStr}. Join here: ${data.meetingUrl} - The 3 Tree`;
+        message = `Hi ${data.clientName}, your session with ${data.therapistName} starts in 1 hour at ${timeStr}. Join here: ${data.meetingUrl} - psychmind`;
     } else {
         // 15 min reminder
-        message = `Hi ${data.clientName}, your session starts in ${data.minutesBefore} minutes. Join now: ${data.meetingUrl} - The 3 Tree`;
+        message = `Hi ${data.clientName}, your session starts in ${data.minutesBefore} minutes. Join now: ${data.meetingUrl} - psychmind`;
     }
 
     await sendBookingSMS({

@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- Create assessments table
 CREATE TABLE IF NOT EXISTS public.assessments (
     id text PRIMARY KEY,
@@ -127,3 +128,4 @@ VALUES
     true
 )
 ON CONFLICT (id) DO NOTHING;
+

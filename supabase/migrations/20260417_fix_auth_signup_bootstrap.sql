@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- Fix auth/signup bootstrap issues for hosted Supabase projects.
 -- Safe to run multiple times.
 
@@ -73,3 +74,4 @@ CREATE POLICY "Therapists can insert own profile" ON public.therapists
     FOR INSERT
     TO authenticated
     WITH CHECK (user_id = auth.uid());
+

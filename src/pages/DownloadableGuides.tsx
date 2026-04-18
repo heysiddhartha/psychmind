@@ -94,7 +94,7 @@ export default function DownloadableGuides() {
   return (
     <>
       <Helmet>
-        <title>Downloadable Guides | The 3 Tree - Mental Health Tools</title>
+        <title>Downloadable Guides | psychmind - Mental Health Tools</title>
         <meta
           name="description"
           content="Access a curated library of downloadable mental health guides, worksheets, and trackers."

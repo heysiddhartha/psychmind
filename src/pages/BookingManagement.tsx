@@ -238,7 +238,7 @@ export default function BookingManagement() {
 
     return (
         <>
-            <Helmet><title>Booking Management | The 3 Tree</title></Helmet>
+            <Helmet><title>Booking Management | psychmind</title></Helmet>
             <div className="min-h-screen bg-gray-50">
                 {/* Header */}
                 <header className="bg-white border-b border-gray-100 sticky top-0 z-50">

@@ -983,7 +983,7 @@ export default function ShopAdmin() {
     return (
         <Layout>
             <Helmet>
-                <title>Shop Admin | 3Tree</title>
+                <title>Shop Admin | psychmind</title>
             </Helmet>
 
             <div className="min-h-screen bg-gray-50 pt-20 pb-12 px-4">

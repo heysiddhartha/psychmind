@@ -94,7 +94,7 @@ export default function Profile() {
     return (
         <>
             <Helmet>
-                <title>My Profile | The 3 Tree</title>
+                <title>My Profile | psychmind</title>
                 <meta name="description" content="Manage your profile and account settings." />
             </Helmet>
 

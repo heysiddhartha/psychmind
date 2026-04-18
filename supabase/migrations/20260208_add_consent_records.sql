@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- Migration: Add consent_records table for informed consent tracking
 -- Date: 2026-02-08
 -- Description: Adds consent records system for service-specific informed consent
@@ -76,3 +77,4 @@ CREATE TRIGGER update_consent_records_updated_at
 
 -- Enable realtime for consent_records if needed for admin monitoring
 -- ALTER PUBLICATION supabase_realtime ADD TABLE public.consent_records;
+

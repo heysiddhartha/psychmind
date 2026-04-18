@@ -61,8 +61,8 @@ export default function ForgotPassword() {
     return (
         <>
             <Helmet>
-                <title>Forgot Password | The 3 Tree - Mental Wellness</title>
-                <meta name="description" content="Reset your password to regain access to your The 3 Tree account." />
+                <title>Forgot Password | psychmind - Mental Wellness</title>
+                <meta name="description" content="Reset your password to regain access to your psychmind account." />
             </Helmet>
             <Layout>
                 <section className="min-h-screen bg-[#F8FAFC] py-20 pt-28 flex items-center">

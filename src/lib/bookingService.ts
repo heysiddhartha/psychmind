@@ -138,7 +138,7 @@ export const serviceTypes: ServiceType[] = [
         name: 'Individual Therapy',
         description: 'One-on-one sessions focused on your personal growth and mental well-being',
         duration: 50,
-        price: 3500,
+        price: 0,
         icon: 'User',
         category: 'therapy'
     },
@@ -147,7 +147,7 @@ export const serviceTypes: ServiceType[] = [
         name: 'Couples Therapy',
         description: 'Strengthen your relationship with guided therapeutic conversations',
         duration: 60,
-        price: 5000,
+        price: 0,
         icon: 'Heart',
         category: 'therapy'
     },
@@ -156,7 +156,7 @@ export const serviceTypes: ServiceType[] = [
         name: 'Child & Adolescent Online Services',
         description: 'Online mental health & wellness services for children and adolescents (under 18) with parental consent',
         duration: 50,
-        price: 3500,
+        price: 0,
         icon: 'Baby',
         category: 'therapy'
     },
@@ -165,7 +165,7 @@ export const serviceTypes: ServiceType[] = [
         name: 'Group Session',
         description: 'Connect with others facing similar challenges in a supportive environment',
         duration: 90,
-        price: 2500,
+        price: 0,
         icon: 'Users',
         category: 'group'
     },
@@ -183,7 +183,7 @@ export const serviceTypes: ServiceType[] = [
         name: 'Crisis Support',
         description: 'Immediate support session for urgent mental health concerns',
         duration: 30,
-        price: 2000,
+        price: 0,
         icon: 'AlertCircle',
         category: 'therapy'
     },
@@ -192,7 +192,7 @@ export const serviceTypes: ServiceType[] = [
         name: 'Yoga Therapy',
         description: 'Holistic yoga sessions combining movement, breath work, and mindfulness for healing',
         duration: 60,
-        price: 1500,
+        price: 0,
         icon: 'Flower2',
         category: 'therapy'
     },
@@ -201,7 +201,7 @@ export const serviceTypes: ServiceType[] = [
         name: 'Nutrition Counseling',
         description: 'Personalized nutrition guidance to support your mental and physical well-being',
         duration: 45,
-        price: 2000,
+        price: 0,
         icon: 'Apple',
         category: 'consultation'
     }
@@ -244,9 +244,136 @@ export const sessionPackages: SessionPackage[] = [
 ];
 
 // ============================================
-// Mock Therapists Data - REMOVED FOR PRODUCTION
-// All therapist data now comes from the database
+// Demo Therapist Fallback
+// Used only when the database has no approved therapists yet,
+// so the booking flow still works for demos and presentations.
 // ============================================
+
+const DEMO_THERAPISTS: TherapistWithDetails[] = [
+    {
+        id: 'demo-therapist-1',
+        user_id: 'demo-user-1',
+        specialties: ['Anxiety', 'Stress Management', 'Self-Esteem'],
+        credentials: ['M.A. Clinical Psychology', 'RCI Registered'],
+        bio: 'A warm, practical therapist who helps clients work through anxiety, burnout, and major life transitions.',
+        hourly_rate: 0,
+        availability: {
+            Monday: ['10:00', '11:00', '14:00', '16:00'],
+            Tuesday: ['09:00', '12:00', '15:00'],
+            Wednesday: ['10:00', '13:00', '17:00'],
+            Thursday: ['11:00', '14:00', '16:00'],
+            Friday: ['09:00', '12:00', '15:00']
+        },
+        is_approved: true,
+        is_verified: true,
+        is_active: true,
+        rating: 4.9,
+        average_rating: 4.9,
+        total_sessions: 180,
+        total_reviews: 64,
+        session_rate_individual: 0,
+        session_rate_couple: 0,
+        session_rate_family: 0,
+        languages: ['English', 'Hindi', 'Bengali'],
+        years_experience: 7,
+        accepts_video: true,
+        accepts_audio: true,
+        accepts_chat: true,
+        accepts_in_person: false,
+        location: 'Kolkata, India',
+        user: {
+            id: 'demo-user-1',
+            email: 'ananya.mehta@psychmind.demo',
+            full_name: 'Dr. Ananya Mehta',
+            role: 'therapist',
+            is_active: true,
+            is_profile_complete: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        }
+    },
+    {
+        id: 'demo-therapist-2',
+        user_id: 'demo-user-2',
+        specialties: ['Relationships', 'Couples Therapy', 'Family Conflict'],
+        credentials: ['M.Sc. Counseling Psychology', 'Certified Family Therapist'],
+        bio: 'Supports couples and families with communication, conflict repair, and healthier emotional connection.',
+        hourly_rate: 0,
+        availability: {
+            Monday: ['09:00', '13:00', '18:00'],
+            Wednesday: ['10:00', '12:00', '16:00'],
+            Friday: ['11:00', '14:00', '17:00'],
+            Saturday: ['10:00', '12:00']
+        },
+        is_approved: true,
+        is_verified: true,
+        is_active: true,
+        rating: 4.8,
+        average_rating: 4.8,
+        total_sessions: 220,
+        total_reviews: 89,
+        session_rate_individual: 0,
+        session_rate_couple: 0,
+        session_rate_family: 0,
+        languages: ['English', 'Hindi'],
+        years_experience: 9,
+        accepts_video: true,
+        accepts_audio: true,
+        accepts_chat: false,
+        accepts_in_person: true,
+        location: 'Bengaluru, India',
+        user: {
+            id: 'demo-user-2',
+            email: 'rahul.sen@psychmind.demo',
+            full_name: 'Dr. Rahul Sen',
+            role: 'therapist',
+            is_active: true,
+            is_profile_complete: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        }
+    },
+    {
+        id: 'demo-therapist-3',
+        user_id: 'demo-user-3',
+        specialties: ['Teen Mental Health', 'Academic Stress', 'Depression'],
+        credentials: ['Psy.D.', 'Trauma-Informed Therapist'],
+        bio: 'Works with teens and young adults navigating academic pressure, low mood, identity questions, and emotional overwhelm.',
+        hourly_rate: 0,
+        availability: {
+            Tuesday: ['10:00', '11:00', '15:00'],
+            Thursday: ['09:00', '13:00', '17:00'],
+            Saturday: ['09:00', '11:00', '14:00']
+        },
+        is_approved: true,
+        is_verified: true,
+        is_active: true,
+        rating: 4.7,
+        average_rating: 4.7,
+        total_sessions: 140,
+        total_reviews: 51,
+        session_rate_individual: 0,
+        session_rate_couple: 0,
+        session_rate_family: 0,
+        languages: ['English', 'Hindi'],
+        years_experience: 6,
+        accepts_video: true,
+        accepts_audio: true,
+        accepts_chat: true,
+        accepts_in_person: false,
+        location: 'Delhi, India',
+        user: {
+            id: 'demo-user-3',
+            email: 'isha.roy@psychmind.demo',
+            full_name: 'Dr. Isha Roy',
+            role: 'therapist',
+            is_active: true,
+            is_profile_complete: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        }
+    }
+];
 
 // Mock bookings storage (will be removed once database is fully integrated)
 const mockBookings: BookingDetails[] = [];
@@ -342,12 +469,12 @@ function generateId(): string {
 
 /**
  * Fetch all approved therapists from database
- * NO MOCK DATA - Uses only real Supabase data
+ * Falls back to demo therapists when no approved therapists exist yet.
  * IMPORTANT: Only fetches users with role='therapist' to prevent clients from appearing
  */
 export async function fetchTherapists(): Promise<TherapistWithDetails[]> {
     try {
-        console.log('🔍 Fetching therapists from database...');
+        console.log('Fetching therapists from database...');
 
         const { data, error } = await supabase
             .from('therapists')
@@ -360,35 +487,32 @@ export async function fetchTherapists(): Promise<TherapistWithDetails[]> {
             .eq('user.role', 'therapist');
 
         if (error) {
-            console.error('❌ Error fetching therapists:', error);
+            console.error('Error fetching therapists:', error);
             throw error;
         }
 
         if (data && data.length > 0) {
-            // Additional client-side filter to ensure only therapists are shown
-            const therapistsOnly = data.filter((t: any) => 
-                t.user?.role === 'therapist' || t.user?.role === 'admin'
-            );
-            console.log(`✅ Found ${therapistsOnly.length} verified therapists in database`);
+            const therapistsOnly = data.filter((t: any) => t.user?.role === 'therapist');
+            console.log(`Found ${therapistsOnly.length} verified therapists in database`);
             return therapistsOnly as TherapistWithDetails[];
         }
 
-        console.warn('⚠️ No therapists found in database');
-        return [];
+        console.warn('No therapists found in database, using demo fallback');
+        return DEMO_THERAPISTS;
     } catch (error) {
-        console.error('❌ Failed to fetch therapists from database:', error);
-        // Return empty array instead of mock data
-        return [];
+        console.error('Failed to fetch therapists from database:', error);
+        return DEMO_THERAPISTS;
     }
 }
 
+
 /**
- * Fetch single therapist by ID from database only
- * IMPORTANT: Validates that user has therapist role
+ * Fetch single therapist by ID
+ * Falls back to demo therapists if no database record is available.
  */
 export async function fetchTherapistById(therapistId: string): Promise<TherapistWithDetails | null> {
     try {
-        console.log(`🔍 Fetching therapist ${therapistId} from database...`);
+        console.log(`Fetching therapist ${therapistId} from database...`);
 
         const { data, error } = await supabase
             .from('therapists')
@@ -402,22 +526,29 @@ export async function fetchTherapistById(therapistId: string): Promise<Therapist
             .single();
 
         if (error) {
-            console.error('❌ Error fetching therapist:', error);
+            console.error('Error fetching therapist:', error);
             throw error;
         }
 
-        if (data && (data.user?.role === 'therapist' || data.user?.role === 'admin')) {
-            console.log(`✅ Found therapist: ${data.user?.full_name}`);
+        if (data && data.user?.role === 'therapist') {
+            console.log(`Found therapist: ${data.user?.full_name}`);
             return data as TherapistWithDetails;
         }
 
-        console.warn(`⚠️ Therapist ${therapistId} not found or invalid role`);
+        const demoTherapist = DEMO_THERAPISTS.find((therapist) => therapist.id === therapistId) || null;
+        if (demoTherapist) {
+            console.log(`Using demo therapist: ${demoTherapist.user.full_name}`);
+            return demoTherapist;
+        }
+
+        console.warn(`Therapist ${therapistId} not found or invalid role`);
         return null;
     } catch (error) {
-        console.error('❌ Failed to fetch therapist from database:', error);
-        return null;
+        console.error('Failed to fetch therapist from database:', error);
+        return DEMO_THERAPISTS.find((therapist) => therapist.id === therapistId) || null;
     }
 }
+
 
 /**
  * Generate default time slots for a therapist (9 AM - 6 PM, hourly)
@@ -707,60 +838,60 @@ export async function createBooking(data: CreateBookingData): Promise<{ booking:
 
     // Calculate amount based on service
     const service = serviceTypes.find(s => s.id === data.service_category_id);
-    const amount = data.amount || service?.price || 3500;
+    const amount = data.amount ?? service?.price ?? 0;
 
-    try {
-        // Map service name to allowed DB values: 'individual', 'couple', 'group', 'child', 'holistic'
-        // The DB has a CHECK constraint that only allows these values
-        const mapServiceType = (serviceName: string | undefined): string => {
-            const name = (serviceName || '').toLowerCase();
-            if (name.includes('couple') || name.includes('relationship')) return 'couple';
-            if (name.includes('group')) return 'group';
-            if (name.includes('child') || name.includes('teen') || name.includes('adolescent')) return 'child';
-            if (name.includes('holistic') || name.includes('wellness') || name.includes('mindfulness')) return 'holistic';
-            return 'individual'; // Default to individual for all other cases
-        };
+    // Demo fallback: allow bookings against frontend-only therapists so the
+    // presentation flow works even before real therapist rows exist in Supabase.
+    if (data.therapist_id.startsWith('demo-therapist-')) {
+        const demoTherapist = DEMO_THERAPISTS.find((therapist) => therapist.id === data.therapist_id);
 
-        const serviceType = mapServiceType(service?.name || data.session_mode);
+        if (!demoTherapist) {
+            return { booking: null, error: 'Selected demo therapist was not found.' };
+        }
 
-        // Generate meeting credentials for video sessions
-        const generateMeetingId = () => {
-            // Generate a 10-digit meeting ID like Zoom
-            return Math.floor(1000000000 + Math.random() * 9000000000).toString();
-        };
-
-        const generatePasscode = () => {
-            // Generate a 6-character alphanumeric passcode
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-            return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-        };
-
-        const generateHostKey = () => {
-            // Generate a 6-digit host key
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        };
-
-        const zoomMeetingId = generateMeetingId();
-        const zoomPasscode = generatePasscode();
-        const zoomHostKey = generateHostKey();
-
-        // Insert booking with columns that match the ACTUAL database schema
-        // DB uses: patient_id, therapist_id, service_type, scheduled_at, duration_minutes, status, meeting_link, notes, amount, payment_status
-        const bookingData = {
-            patient_id: data.client_id,  // DB uses 'patient_id' not 'client_id'
+        const demoBooking: BookingDetails = {
+            id: generateId(),
+            client_id: data.client_id,
+            patient_id: data.client_id,
             therapist_id: data.therapist_id,
-            service_type: serviceType,   // Must be one of: individual, couple, group, child, holistic
+            service_category_id: data.service_category_id || null,
+            package_id: data.package_id || null,
+            service_type: service?.id || 'individual',
+            session_mode: data.session_mode || 'video',
             scheduled_at: data.scheduled_at,
             duration_minutes: data.duration_minutes || 60,
             status: 'confirmed',
-            meeting_link: meetingUrl,    // DB uses 'meeting_link' not 'meeting_url'
-            notes: data.notes_client || null,
-            amount: amount,
-            payment_status: amount === 0 ? 'paid' : 'pending',
-            // Secure meeting credentials
-            zoom_meeting_id: zoomMeetingId,
-            zoom_passcode: zoomPasscode,
-            zoom_host_key: zoomHostKey,
+            meeting_link: meetingUrl,
+            meeting_url: meetingUrl,
+            room_id: roomId,
+            notes_client: data.notes_client || null,
+            client_timezone: data.client_timezone || null,
+            amount,
+            currency: data.currency || 'INR',
+            payment_status: 'paid',
+            created_at: new Date().toISOString(),
+            therapist: demoTherapist,
+        };
+
+        mockBookings.push(demoBooking);
+        return { booking: demoBooking, error: null };
+    }
+
+    try {
+        // Insert booking with columns that match the base schema actually deployed.
+        const bookingData = {
+            client_id: data.client_id,
+            therapist_id: data.therapist_id,
+            service_category_id: data.service_category_id || null,
+            package_id: data.package_id || null,
+            session_mode: data.session_mode || 'video',
+            scheduled_at: data.scheduled_at,
+            duration_minutes: data.duration_minutes || 60,
+            status: 'confirmed',
+            meeting_url: meetingUrl,
+            room_id: roomId,
+            client_timezone: data.client_timezone || null,
+            notes_client: data.notes_client || null,
         };
 
         console.log('📝 Creating booking with data:', bookingData);
@@ -796,9 +927,13 @@ export async function createBooking(data: CreateBookingData): Promise<{ booking:
         // Map the DB response to our expected format
         const booking = {
             ...insertedBooking,
-            client_id: insertedBooking.patient_id,  // Map back for frontend
-            meeting_url: insertedBooking.meeting_link || meetingUrl,
-            room_id: roomId,
+            patient_id: insertedBooking.client_id,
+            amount,
+            currency: data.currency || 'INR',
+            payment_status: 'paid' as const,
+            meeting_link: insertedBooking.meeting_url || meetingUrl,
+            meeting_url: insertedBooking.meeting_url || meetingUrl,
+            room_id: insertedBooking.room_id || roomId,
         };
 
         // ============================================

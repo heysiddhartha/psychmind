@@ -805,7 +805,7 @@ export default function BookingPage() {
         return (
             <>
                 <Helmet>
-                    <title>Booking Confirmed | 3-3.com Counseling</title>
+                    <title>Booking Confirmed | psychmind</title>
                 </Helmet>
                 <Layout>
                     <section className="min-h-screen bg-gradient-subtle py-20 pt-28">
@@ -830,7 +830,7 @@ export default function BookingPage() {
     return (
         <>
             <Helmet>
-                <title>Book Appointment | 3-3.com Counseling</title>
+                <title>Book Appointment | psychmind</title>
                 <meta name="description" content="Book a therapy session with our licensed counselors. Easy online scheduling, video sessions, and personalized care." />
             </Helmet>
             <Layout>

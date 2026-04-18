@@ -127,7 +127,7 @@ export default function FindTherapist() {
     return (
         <>
             <Helmet>
-                <title>Find a Therapist | The 3 Tree</title>
+                <title>Find a Therapist | psychmind</title>
                 <meta name="description" content="Browse our team of licensed therapists and find the right match for your mental wellness journey." />
             </Helmet>
 

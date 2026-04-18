@@ -91,7 +91,7 @@ export default function ChildConsentForm({ onComplete, onBack, loading }: ChildC
         <p className="text-sm text-blue-800 leading-relaxed">
           <strong>Please read carefully before proceeding.</strong> This consent applies to children
           and adolescents below 18 years receiving online mental health and wellness services
-          through The3tree. All services are provided with the child's best interests, safety,
+          through psychmind. All services are provided with the child's best interests, safety,
           dignity, and developmental needs as the primary consideration, in accordance with Indian
           law and accepted ethical practice.
         </p>
@@ -175,7 +175,7 @@ export default function ChildConsentForm({ onComplete, onBack, loading }: ChildC
           title="Emergency Disclaimer"
         >
           <p>
-            The3tree is <strong>not</strong> an emergency or crisis service. In case of immediate
+            psychmind is <strong>not</strong> an emergency or crisis service. In case of immediate
             risk, local emergency services, hospitals, or child protection services must be
             contacted.
           </p>

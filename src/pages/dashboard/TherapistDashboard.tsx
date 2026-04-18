@@ -477,7 +477,7 @@ export default function TherapistDashboard() {
         return (
             <>
                 <Helmet>
-                    <title>Complete Your Profile | 3-3.com Counseling</title>
+                    <title>Complete Your Profile | psychmind</title>
                 </Helmet>
                 <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
                     <div className="max-w-md text-center">
@@ -510,7 +510,7 @@ export default function TherapistDashboard() {
         return (
             <>
                 <Helmet>
-                    <title>Pending Verification | 3-3.com Counseling</title>
+                    <title>Pending Verification | psychmind</title>
                 </Helmet>
                 <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
                     <div className="max-w-md text-center">
@@ -542,7 +542,7 @@ export default function TherapistDashboard() {
     return (
         <>
             <Helmet>
-                <title>Therapist Dashboard | 3-3.com Counseling</title>
+                <title>Therapist Dashboard | psychmind</title>
             </Helmet>
             <div className="min-h-screen bg-gray-50">
                 {/* Header */}

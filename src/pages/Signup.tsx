@@ -202,7 +202,7 @@ export default function Signup() {
           title: "Account Created!",
           description: role === 'therapist'
             ? "Welcome! Please complete your therapist profile for verification."
-            : "Welcome to The 3 Tree! You can now book sessions.",
+            : "Welcome to psychmind! You can now book sessions.",
         });
         navigate(role === 'therapist' ? '/complete-profile' : '/dashboard');
       }
@@ -267,8 +267,8 @@ export default function Signup() {
   return (
     <>
       <Helmet>
-        <title>Create Account | The 3 Tree - Mental Wellness</title>
-        <meta name="description" content="Join The 3 Tree and start your mental wellness journey. Create an account to book therapy sessions and connect with compassionate therapists." />
+        <title>Create Account | psychmind - Mental Wellness</title>
+        <meta name="description" content="Join psychmind and start your mental wellness journey. Create an account to book therapy sessions and connect with compassionate therapists." />
       </Helmet>
       <Layout>
         <section ref={pageRef} className="min-h-screen auth-gradient-bg py-20 pt-28 relative overflow-hidden">

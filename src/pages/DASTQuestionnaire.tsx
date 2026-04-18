@@ -56,7 +56,7 @@ export default function DASTQuestionnaire() {
   return (
     <>
       <Helmet>
-        <title>DAST-10 Drug Awareness Assessment | The 3 Tree</title>
+        <title>DAST-10 Drug Awareness Assessment | psychmind</title>
         <meta name="description" content="Take the DAST-10 drug use screening questionnaire" />
       </Helmet>
       <Layout>

@@ -49,7 +49,7 @@ export function generateSessionNotesPDF(data: SessionNotePDFData): jsPDF {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
-    doc.text('The 3 Tree Counseling', margin, 18);
+    doc.text('psychmind', margin, 18);
 
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
@@ -253,7 +253,7 @@ export function generateSessionNotesPDF(data: SessionNotePDFData): jsPDF {
         doc.setFont('helvetica', 'normal');
         doc.text('CONFIDENTIAL — This document contains protected health information (PHI). Unauthorized disclosure is prohibited.', margin, footerY);
         doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin - 20, footerY);
-        doc.text('The 3 Tree Counseling', pageWidth / 2 - 15, footerY);
+        doc.text('psychmind', pageWidth / 2 - 15, footerY);
     }
 
     return doc;

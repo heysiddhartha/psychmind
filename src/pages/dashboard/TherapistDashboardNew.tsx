@@ -59,10 +59,7 @@ interface SessionData {
     status: string;
     duration_minutes: number;
     patient_id: string;
-    meeting_link?: string;
-    zoom_meeting_id?: string;
-    zoom_passcode?: string;
-    zoom_host_key?: string;
+    meeting_url?: string | null;
 }
 
 interface TherapistStats {
@@ -110,6 +107,7 @@ export default function TherapistDashboard() {
         upcomingSessions: 0
     });
     const [loading, setLoading] = useState(true);
+    const [loadingTimedOut, setLoadingTimedOut] = useState(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [therapistProfile, setTherapistProfile] = useState<any>(null);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -151,6 +149,19 @@ export default function TherapistDashboard() {
         }
     }, [user]);
 
+    useEffect(() => {
+        if (!loading) {
+            setLoadingTimedOut(false);
+            return;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            setLoadingTimedOut(true);
+        }, 8000);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [loading]);
+
     // Animate on load
     useEffect(() => {
         if (!containerRef.current || loading) return;
@@ -171,11 +182,52 @@ export default function TherapistDashboard() {
 
         try {
             // Get therapist profile
-            const { data: therapist } = await supabase
+            let { data: therapist, error: therapistError } = await supabase
                 .from('therapists')
                 .select('*')
                 .eq('user_id', user.id)
-                .single();
+                .maybeSingle();
+
+            // Self-heal missing therapist rows created during onboarding.
+            if (!therapist) {
+                const { error: createError } = await supabase
+                    .from('therapists')
+                    .insert({
+                        user_id: user.id,
+                        bio: '',
+                        specialties: [],
+                        languages: ['English'],
+                        years_experience: 0,
+                        session_rate_individual: 75.0,
+                        session_rate_couple: 100.0,
+                        session_rate_family: 120.0,
+                        accepts_new_clients: true,
+                        is_verified: false,
+                        is_active: false,
+                    });
+
+                if (createError) {
+                    therapistError = createError;
+                } else {
+                    const retry = await supabase
+                        .from('therapists')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .maybeSingle();
+
+                    therapist = retry.data;
+                    therapistError = retry.error;
+                }
+            }
+
+            if (therapistError) {
+                console.error('Failed to load therapist profile:', therapistError);
+                toast({
+                    title: 'Therapist profile unavailable',
+                    description: 'We could not finish loading your therapist account yet. Please try again in a moment.',
+                    variant: 'destructive',
+                });
+            }
 
             setTherapistProfile(therapist);
 
@@ -194,9 +246,9 @@ export default function TherapistDashboard() {
             const { data: todayBookings } = await supabase
                 .from('bookings')
                 .select(`
-                    id, scheduled_at, service_type, status, duration_minutes, patient_id,
-                    meeting_link, zoom_meeting_id, zoom_passcode, zoom_host_key,
-                    users!bookings_patient_id_fkey (full_name)
+                    id, scheduled_at, session_mode, status, duration_minutes, client_id,
+                    meeting_url,
+                    users!bookings_client_id_fkey (full_name)
                 `)
                 .eq('therapist_id', therapist.id)
                 .gte('scheduled_at', startOfDay)
@@ -209,14 +261,11 @@ export default function TherapistDashboard() {
                 patient_name: b.users?.full_name || 'Patient',
                 patient_initial: (b.users?.full_name || 'P').charAt(0).toUpperCase(),
                 scheduled_at: b.scheduled_at,
-                service_type: b.service_type,
+                service_type: b.session_mode || 'session',
                 status: b.status,
                 duration_minutes: b.duration_minutes || 50,
-                patient_id: b.patient_id,
-                meeting_link: b.meeting_link,
-                zoom_meeting_id: b.zoom_meeting_id,
-                zoom_passcode: b.zoom_passcode,
-                zoom_host_key: b.zoom_host_key,
+                patient_id: b.client_id,
+                meeting_url: b.meeting_url || null,
             }));
 
             setSessions(sessionsData);
@@ -225,9 +274,9 @@ export default function TherapistDashboard() {
             const { data: futureBookings } = await supabase
                 .from('bookings')
                 .select(`
-                    id, scheduled_at, service_type, status, duration_minutes, patient_id,
-                    meeting_link, zoom_meeting_id, zoom_passcode, zoom_host_key,
-                    users!bookings_patient_id_fkey (full_name)
+                    id, scheduled_at, session_mode, status, duration_minutes, client_id,
+                    meeting_url,
+                    users!bookings_client_id_fkey (full_name)
                 `)
                 .eq('therapist_id', therapist.id)
                 .gte('scheduled_at', endOfDay)
@@ -241,14 +290,11 @@ export default function TherapistDashboard() {
                 patient_name: b.users?.full_name || 'Patient',
                 patient_initial: (b.users?.full_name || 'P').charAt(0).toUpperCase(),
                 scheduled_at: b.scheduled_at,
-                service_type: b.service_type,
+                service_type: b.session_mode || 'session',
                 status: b.status,
                 duration_minutes: b.duration_minutes || 50,
-                patient_id: b.patient_id,
-                meeting_link: b.meeting_link,
-                zoom_meeting_id: b.zoom_meeting_id,
-                zoom_passcode: b.zoom_passcode,
-                zoom_host_key: b.zoom_host_key,
+                patient_id: b.client_id,
+                meeting_url: b.meeting_url || null,
             }));
 
             setUpcomingSessions(upcomingData);
@@ -256,26 +302,32 @@ export default function TherapistDashboard() {
             // Fetch stats
             const { data: allBookings } = await supabase
                 .from('bookings')
-                .select('id, status, amount, scheduled_at, patient_id')
+                .select('id, status, scheduled_at, client_id')
                 .eq('therapist_id', therapist.id);
 
-            const { data: monthBookings } = await supabase
+            const { data: completedBookingIds } = await supabase
                 .from('bookings')
-                .select('amount, status')
+                .select('id')
                 .eq('therapist_id', therapist.id)
                 .gte('scheduled_at', startOfMonth)
                 .eq('status', 'completed');
 
-            const uniquePatientIds = new Set((allBookings || []).map(b => b.patient_id));
+            const { data: monthBookings } = await supabase
+                .from('payments')
+                .select('amount, status')
+                .in('booking_id', (completedBookingIds || []).map((b) => b.id));
+
+            const uniquePatientIds = new Set((allBookings || []).map(b => b.client_id));
             const completed = (allBookings || []).filter(b => b.status === 'completed').length;
             const upcoming = (allBookings || []).filter(b => ['confirmed', 'pending'].includes(b.status)).length;
-            const monthlyTotal = (monthBookings || []).reduce((sum, b) => sum + (b.amount || 0), 0);
+            const paidMonthBookings = (monthBookings || []).filter((b) => b.status === 'paid');
+            const monthlyTotal = paidMonthBookings.reduce((sum, b) => sum + (b.amount || 0), 0);
 
             setStats({
                 todaySessions: sessionsData.length,
                 totalPatients: uniquePatientIds.size,
                 monthlyEarnings: monthlyTotal,
-                avgRating: therapist.rating || 0,
+                avgRating: therapist.average_rating || 0,
                 totalReviews: therapist.total_reviews || 0,
                 completedSessions: completed,
                 upcomingSessions: upcoming
@@ -297,8 +349,8 @@ export default function TherapistDashboard() {
             
             const patientBookingCounts: { [key: string]: number } = {};
             (allBookings || []).forEach(b => {
-                if (b.patient_id) {
-                    patientBookingCounts[b.patient_id] = (patientBookingCounts[b.patient_id] || 0) + 1;
+                if (b.client_id) {
+                    patientBookingCounts[b.client_id] = (patientBookingCounts[b.client_id] || 0) + 1;
                 }
             });
             const returningPatients = Object.values(patientBookingCounts).filter(count => count >= 2).length;
@@ -378,7 +430,7 @@ export default function TherapistDashboard() {
 
     const completedToday = sessions.filter(s => s.status === 'completed').length;
 
-    if (authLoading || loading) {
+    if (authLoading || (loading && !loadingTimedOut)) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="flex flex-col items-center gap-4">
@@ -389,51 +441,13 @@ export default function TherapistDashboard() {
         );
     }
 
-    if (!therapistProfile) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-                <div className="max-w-md text-center bg-white p-8 rounded-2xl shadow-lg">
-                    <div className="w-20 h-20 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <User className="w-10 h-10 text-cyan-600" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">Complete Your Profile</h1>
-                    <p className="text-gray-600 mb-6">
-                        To start accepting clients, please complete your therapist profile.
-                    </p>
-                    <Link to="/complete-profile">
-                        <Button className="w-full bg-gradient-to-r from-cyan-500 to-blue-600">
-                            Complete Profile
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-        );
-    }
-
-    if (!therapistProfile.is_verified) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-                <div className="max-w-md text-center bg-white p-8 rounded-2xl shadow-lg">
-                    <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <AlertCircle className="w-10 h-10 text-amber-600" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">Pending Verification</h1>
-                    <p className="text-gray-600 mb-6">
-                        Your account is being reviewed. You'll receive an email once verified.
-                    </p>
-                    <Button variant="outline" onClick={handleSignOut} className="w-full">
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Sign Out
-                    </Button>
-                </div>
-            </div>
-        );
-    }
+    const needsProfileSetup = !therapistProfile;
+    const pendingVerification = !!therapistProfile && !therapistProfile.is_verified;
 
     return (
         <>
             <Helmet>
-                <title>Therapist Dashboard | 3tree Counseling</title>
+                <title>Therapist Dashboard | psychmind</title>
             </Helmet>
             
             <div className="min-h-screen bg-gray-50 flex">
@@ -445,10 +459,7 @@ export default function TherapistDashboard() {
                     <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100">
                         {!sidebarCollapsed && (
                             <Link to="/" className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
-                                    <span className="text-white font-bold text-sm">3T</span>
-                                </div>
-                                <span className="font-semibold text-gray-900">3tree</span>
+                                <span className="font-semibold text-gray-900">psychmind</span>
                             </Link>
                         )}
                         <button
@@ -525,10 +536,7 @@ export default function TherapistDashboard() {
                 }`}>
                     <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100">
                         <Link to="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">3T</span>
-                            </div>
-                            <span className="font-semibold text-gray-900">3tree</span>
+                            <span className="font-semibold text-gray-900">psychmind</span>
                         </Link>
                         <button onClick={() => setMobileMenuOpen(false)} className="p-2">
                             <X className="w-5 h-5" />
@@ -599,6 +607,53 @@ export default function TherapistDashboard() {
 
                     {/* Dashboard Content */}
                     <div ref={containerRef} className="flex-1 overflow-y-auto p-4 lg:p-8">
+                        {needsProfileSetup && (
+                            <div className="dashboard-card mb-6 rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-50 to-blue-50 p-5">
+                                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-0.5 rounded-full bg-cyan-100 p-2">
+                                            <User className="h-5 w-5 text-cyan-700" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg font-semibold text-gray-900">Complete Your Therapist Setup</h2>
+                                            <p className="mt-1 text-sm text-gray-600">
+                                                Your account is signed in, but we still need a few therapist details before everything is fully connected.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Link to="/complete-profile">
+                                        <Button className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">
+                                            Complete Profile
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
+
+                        {pendingVerification && (
+                            <div className="dashboard-card mb-6 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-5">
+                                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-0.5 rounded-full bg-amber-100 p-2">
+                                            <AlertCircle className="h-5 w-5 text-amber-600" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg font-semibold text-gray-900">Verification In Progress</h2>
+                                            <p className="mt-1 text-sm text-gray-600">
+                                            Your therapist account is created and your dashboard is ready.
+                                            Some client-facing features will unlock once an admin verifies your profile.
+                                        </p>
+                                    </div>
+                                    </div>
+                                    <Link to="/complete-profile">
+                                        <Button variant="outline" className="border-amber-300 bg-white hover:bg-amber-50">
+                                            Review Profile
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Welcome Section */}
                         <div className="dashboard-card mb-6">
                             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

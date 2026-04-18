@@ -150,7 +150,7 @@ export default function Team() {
   return (
     <>
       <Helmet>
-        <title>Meet The Team | The 3 Tree - Mental Wellness Professionals</title>
+        <title>Meet The Team | psychmind - Mental Wellness Professionals</title>
         <meta
           name="description"
           content="Meet our team of licensed psychologists and therapists dedicated to your mental wellness journey."

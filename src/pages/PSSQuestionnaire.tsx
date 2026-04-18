@@ -68,7 +68,7 @@ export default function PSSQuestionnaire() {
   return (
     <>
       <Helmet>
-        <title>Perceived Stress Scale (PSS) | The 3 Tree</title>
+        <title>Perceived Stress Scale (PSS) | psychmind</title>
         <meta name="description" content="Take the Perceived Stress Scale assessment" />
       </Helmet>
       <Layout>

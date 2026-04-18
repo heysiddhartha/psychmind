@@ -1,3 +1,4 @@
+SET search_path = public, extensions;
 -- ==========================================
 -- COMPREHENSIVE PLATFORM ENHANCEMENTS
 -- Run this in Supabase SQL Editor
@@ -126,10 +127,12 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
 -- Users table - Super admin full access
+DROP POLICY IF EXISTS "Super admins full access on users" ON public.users;
 CREATE POLICY "Super admins full access on users" ON public.users
     FOR ALL USING (public.is_super_admin());
 
 -- Therapists table - Super admin full access
+DROP POLICY IF EXISTS "Super admins full access on therapists" ON public.therapists;
 CREATE POLICY "Super admins full access on therapists" ON public.therapists
     FOR ALL USING (public.is_super_admin());
 
@@ -139,24 +142,29 @@ CREATE POLICY "Therapists can insert own profile" ON public.therapists
     FOR INSERT WITH CHECK (user_id = auth.uid());
 
 -- Bookings - Super admin full access
+DROP POLICY IF EXISTS "Super admins full access on bookings" ON public.bookings;
 CREATE POLICY "Super admins full access on bookings" ON public.bookings
     FOR ALL USING (public.is_super_admin());
 
 -- Audit logs - Only super admins can view
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Super admins view audit logs" ON public.audit_logs;
 CREATE POLICY "Super admins view audit logs" ON public.audit_logs
     FOR SELECT USING (public.is_super_admin());
 
+DROP POLICY IF EXISTS "System insert audit logs" ON public.audit_logs;
 CREATE POLICY "System insert audit logs" ON public.audit_logs
     FOR INSERT WITH CHECK (true);
 
 -- System settings - Super admins manage, public can read public settings
 ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public reads public settings" ON public.system_settings;
 CREATE POLICY "Public reads public settings" ON public.system_settings
     FOR SELECT USING (is_public = true);
 
+DROP POLICY IF EXISTS "Super admins manage all settings" ON public.system_settings;
 CREATE POLICY "Super admins manage all settings" ON public.system_settings
     FOR ALL USING (public.is_super_admin());
 
@@ -263,9 +271,36 @@ WHERE email = 'idthe3tree@gmail.com';
 -- ==========================================
 
 -- Enable realtime for audit logs (admin monitoring)
-ALTER PUBLICATION supabase_realtime ADD TABLE public.audit_logs;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.system_settings;
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_publication_tables
+        WHERE pubname = 'supabase_realtime'
+          AND schemaname = 'public'
+          AND tablename = 'audit_logs'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.audit_logs;
+    END IF;
+END
+$$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_publication_tables
+        WHERE pubname = 'supabase_realtime'
+          AND schemaname = 'public'
+          AND tablename = 'system_settings'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.system_settings;
+    END IF;
+END
+$$;
 
 -- ==========================================
 -- MIGRATION COMPLETE
 -- ==========================================
+
+
